@@ -1,7 +1,9 @@
 package com.example.driveraber.Models.Staff;
 
 import com.example.driveraber.Models.User.Gender;
+import com.example.driveraber.Models.User.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Driver extends Staff{
@@ -17,6 +19,7 @@ public class Driver extends Staff{
     private boolean active;
     private String documentID;
     private String status;
+    private List<User> chattedUSer;
 
     public Driver(){};
 
@@ -34,6 +37,7 @@ public class Driver extends Staff{
         this.active = active;
         this.documentID = documentID;
         this.status = "Register Pending";
+        this.chattedUSer = new ArrayList<>();
     }
 
     public String getName() {
@@ -130,5 +134,13 @@ public class Driver extends Staff{
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<User> getChattedUSer() {
+        return chattedUSer;
+    }
+
+    public void setChattedUSer(List<User> chattedUSer) {
+        this.chattedUSer = chattedUSer;
     }
 }
