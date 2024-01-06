@@ -1,4 +1,4 @@
-package com.example.driveraber.Activities.Main.Fragment.Chat;
+package com.example.driveraber.Activities.Main.Fragment.Booking;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
@@ -31,7 +31,7 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatDetailFragment extends Fragment {
-    private String id, type;
+    private String userID, type, bookingID;
     private User currentUser;
     private Driver currentDriver;
     private FirebaseManager firebaseManager;
@@ -58,7 +58,9 @@ public class ChatDetailFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            id = bundle.getString("userID");
+            userID = bundle.getString("userID");
+            bookingID = bundle.getString("bookingID");
+
         }
         recyclerView = root.findViewById(R.id.recycler_message);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -67,7 +69,7 @@ public class ChatDetailFragment extends Fragment {
         messageAdapter = new MessageAdapter(new ArrayList<>(), null);
         recyclerView.setAdapter(messageAdapter);
 
-        fetchUser(id);
+        fetchUser(userID);
 
         backImageView = root.findViewById(R.id.back);
         avatar = root.findViewById(R.id.avatar);
@@ -76,7 +78,7 @@ public class ChatDetailFragment extends Fragment {
         sendButton = root.findViewById(R.id.send_button);
 
         firebaseManager.readMessage(
-                Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid(), id, new FirebaseManager.OnReadingMessageListener() {
+                Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid(), userID, new FirebaseManager.OnReadingMessageListener() {
                     @Override
                     public void OnMessageDataChanged(List<MyMessage> messageList) {
                         updateMessageList(messageList);
@@ -87,8 +89,13 @@ public class ChatDetailFragment extends Fragment {
         backImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BookingDetailFragment fragment = new BookingDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("bookingID", bookingID);
+                fragment.setArguments(bundle);
+
                 getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_main_chat_container, new UserChatListFragment())
+                        .replace(R.id.fragment_main_container, fragment)
                         .addToBackStack(null)
                         .commit();
             }
@@ -100,7 +107,7 @@ public class ChatDetailFragment extends Fragment {
                 String message = sendText.getText().toString();
                 if (!message.isEmpty()) {
                     String sender = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
-                    firebaseManager.sendMessage(sender, id, message);
+                    firebaseManager.sendMessage(sender, userID, message);
                 } else {
                     AndroidUtil.showToast(requireContext(),"You haven't typed anything");
                 }

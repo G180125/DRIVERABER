@@ -1,9 +1,13 @@
 package com.example.driveraber.Models.Staff;
 
+import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.User.Gender;
 import com.example.driveraber.Models.User.User;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Driver extends Staff{
@@ -19,7 +23,9 @@ public class Driver extends Staff{
     private boolean active;
     private String documentID;
     private String status;
-    private List<User> chattedUSer;
+    private List<Booking> bookings;
+    private List<User> chattedUser;
+    private List<Schedule> scheduleList;
 
     public Driver(){};
 
@@ -37,7 +43,9 @@ public class Driver extends Staff{
         this.active = active;
         this.documentID = documentID;
         this.status = "Register Pending";
-        this.chattedUSer = new ArrayList<>();
+        this.bookings = new ArrayList<>();
+        this.chattedUser = new ArrayList<>();
+        this.scheduleList = new ArrayList<>();
     }
 
     public String getName() {
@@ -131,16 +139,76 @@ public class Driver extends Staff{
     public String getStatus() {
         return status;
     }
-
     public void setStatus(String status) {
         this.status = status;
     }
 
-    public List<User> getChattedUSer() {
-        return chattedUSer;
+    public List<Booking> getBookings() {
+        return bookings;
     }
 
-    public void setChattedUSer(List<User> chattedUSer) {
-        this.chattedUSer = chattedUSer;
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
+    }
+
+    public List<User> getChattedUser() {
+        return chattedUser;
+    }
+
+    public void setChattedUser(List<User> chattedUser) {
+        this.chattedUser = chattedUser;
+    }
+
+    public List<Schedule> getScheduleList() {
+        return scheduleList;
+    }
+
+    public void setScheduleList(List<Schedule> scheduleList) {
+        this.scheduleList = scheduleList;
+    }
+
+    public String isAcceptable(Booking booking, Gender gender){
+        if(!gender.equals(this.gender)){
+            return "Gender-based Issue";
+        }
+
+        Schedule newBookingSchedule = new Schedule(booking.getBookingTime(), booking.getETA(), booking.getBookingDate());
+
+        if (hasScheduleConflict(newBookingSchedule)) {
+            return "Schedule Conflict";
+        } else {
+            if(this.scheduleList == null){
+                List<Schedule> list = new ArrayList<>();
+                list.add(newBookingSchedule);
+
+                setScheduleList(list);
+            } else {
+                this.scheduleList.add(newBookingSchedule);
+            }
+        }
+
+        return "Acceptable";
+    }
+
+    private boolean hasScheduleConflict(Schedule newBookingSchedule) {
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", java.util.Locale.getDefault());
+
+        try {
+            Date newBookingStartTime = sdf.parse(newBookingSchedule.getStartTime());
+            Date newBookingEndTime = sdf.parse(newBookingSchedule.getEndTIme());
+
+            for (Schedule existingSchedule : scheduleList) {
+                Date existingStartTime = sdf.parse(existingSchedule.getStartTime());
+                Date existingEndTime = sdf.parse(existingSchedule.getEndTIme());
+
+                if (newBookingStartTime.before(existingEndTime) && newBookingEndTime.after(existingStartTime)) {
+                    return true; // Schedule conflict
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return false; // No conflict
     }
 }

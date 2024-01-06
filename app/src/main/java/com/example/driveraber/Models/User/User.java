@@ -143,6 +143,21 @@ public class User {
         this.chattedDriver = chattedDriver;
     }
 
-
+    @Override
+    public String toString() {
+        return "User{" +
+                "email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", gender=" + gender +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", homes=" + homes +
+                ", vehicles=" + vehicles +
+                ", emergencyContacts=" + emergencyContacts +
+                ", bookings=" + bookings +
+                ", stripeCusId='" + stripeCusId + '\'' +
+                ", chattedDriver=" + chattedDriver +
+                '}';
+    }
 }
 
