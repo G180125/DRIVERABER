@@ -7,6 +7,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.driveraber.Models.Booking.Booking;
+import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Message.MyMessage;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.User;
@@ -39,6 +41,7 @@ public class FirebaseManager {
     public final String COLLECTION_ADMINS = "admins";
     public final String COLLECTION_DRIVERS = "drivers";
     public final String COLLECTION_CHATS = "Chats";
+    public final String COLLECTION_BOOKINGS = "Bookings";
     public FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private StorageReference storageRef;
@@ -330,6 +333,66 @@ public class FirebaseManager {
         });
     }
 
+    public void fetchBookings(OnFetchListListener<BookingResponse> listener){
+        List<BookingResponse> bookingResponseList = new ArrayList<>();
+
+        DatabaseReference reference =  this.database.getReference(COLLECTION_BOOKINGS);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                bookingResponseList.clear();
+                for (DataSnapshot s: snapshot.getChildren()){
+                    BookingResponse bookingResponse = s.getValue(BookingResponse.class);
+                    assert bookingResponse != null;
+                    bookingResponse.setId(s.getKey());
+                    if(bookingResponse.getDriverID() == null || bookingResponse.getDriverID().isEmpty()){
+                        bookingResponseList.add(bookingResponse);
+                    }
+                }
+                listener.onDataChanged(bookingResponseList);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void acceptBooking(String key, String driverId, Booking booking, OnTaskCompleteListener listener) {
+        DatabaseReference bookingRef = this.database.getReference(COLLECTION_BOOKINGS).child(key);
+
+        bookingRef.child("booking").setValue(booking);
+
+        // Update the driverID for the specific booking
+        bookingRef.child("driverID").setValue(driverId)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Update successful
+                        listener.onTaskSuccess("Accept Booking Successful");
+                    } else {
+                        // Handle the error
+                        listener.onTaskFailure(task.getException().getMessage());
+                    }
+                });
+
+    }
+
+
+    public void updateUser(String userID, User user, OnTaskCompleteListener listener) {
+        new Thread(() -> {
+            this.firestore.collection(this.COLLECTION_USERS)
+                    .document(userID)
+                    .set(user)
+                    .addOnSuccessListener(aVoid -> {
+                        listener.onTaskSuccess("User updated successfully");
+                    })
+                    .addOnFailureListener(e -> {
+                        listener.onTaskFailure("Error updating user: " + e.getMessage());
+                    });
+        }).start();
+    }
+
     public interface OnTaskCompleteListener {
         void onTaskSuccess(String message);
         void onTaskFailure(String message);
@@ -358,6 +421,10 @@ public class FirebaseManager {
        void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential);
        void onVerificationFailed(String message);
        void onCodeSent(String message);
+    }
+
+    public interface OnFetchListListener<T>{
+        void onDataChanged(List<T> object);
     }
 }
 
