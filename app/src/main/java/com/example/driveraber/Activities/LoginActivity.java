@@ -14,10 +14,11 @@ import com.example.driveraber.Activities.Register.RegisterActivity;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
+import com.google.android.material.button.MaterialButton;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText emailEditText, passwordEditText;
-    private Button loginButton, registerButton;
+    private MaterialButton loginButton, registerButton;
     private FirebaseManager firebaseManager;
     private ProgressDialog progressDialog;
 
@@ -31,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.email_edit_text);
         passwordEditText = findViewById(R.id.password_edit_text);
         loginButton = findViewById(R.id.login_button);
-        registerButton = findViewById(R.id.register);
+        registerButton = findViewById(R.id.register_button);
 
         Intent intent = getIntent();
         if (intent.hasExtra("email") && intent.hasExtra("password")) {
