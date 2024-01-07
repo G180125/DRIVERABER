@@ -4,53 +4,91 @@ import static com.example.driveraber.Utils.AndroidUtil.hideLoadingDialog;
 import static com.example.driveraber.Utils.AndroidUtil.showLoadingDialog;
 import static com.example.driveraber.Utils.AndroidUtil.showToast;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import com.canhub.cropper.CropImageContract;
+import com.canhub.cropper.CropImageContractOptions;
+import com.canhub.cropper.CropImageOptions;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.Models.Booking.Booking;
+import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.Gender;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
+import com.example.driveraber.Utils.AndroidUtil;
 
+import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class BookingDetailFragment extends Fragment {
+    private static final String STORAGE_PATH = "pickup/";
     private FirebaseManager firebaseManager;
     private ProgressDialog progressDialog;
     private Driver driver;
     private Booking booking;
-
-    private String bookingID, userId;
+    private String bookingID, userId, imagePath;
     private TextView pickUpTextView, destinationTextView, bookingTimeTextView, statusTextView, brandTextView, vehicleNameTextView, colorTextView, seatTextView, plateTextView, amountTextView, methodTextView, userNameTextView, userGenderTextView, phoneNumberTextView, realPickUpTimeTextView;
     private CircleImageView avatar;
-    private ImageView backButton, imageVIew, vehicleExpand, paymentExpand, driverExpand, resourceExpand;
+    private ImageView backButton, imageView, vehicleExpand, paymentExpand, driverExpand, resourceExpand;
     private CardView vehicleCardView, paymentCardView, driverCardView, resourceCardView;
     private boolean[] imageViewClickStates = {false, false, false, false};
-    private Button doneButton, chatBUtton;
+    private Button pickUpButton, chatBUtton;
+    private Bitmap cropped;
+    private PopupWindow popupWindow;
+    private View root;
+    private TimePicker timePicker;
+
+    private final ActivityResultLauncher<Intent> getImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            Intent data = result.getData();
+            if (data != null && data.getData() != null) {
+                Uri imageUri = data.getData();
+                launchImageCropper(imageUri);
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<CropImageContractOptions> cropImage = registerForActivityResult(new CropImageContract(), result -> {
+        if (result.isSuccessful()) {
+            cropped = BitmapFactory.decodeFile(result.getUriFilePath(requireContext(), true));
+        }
+    });
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         progressDialog = new ProgressDialog(requireContext());
         showLoadingDialog(progressDialog);
         // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_booking_detail, container, false);
+        root = inflater.inflate(R.layout.fragment_booking_detail, container, false);
         firebaseManager = new FirebaseManager();
 
         Bundle args = getArguments();
@@ -95,9 +133,9 @@ public class BookingDetailFragment extends Fragment {
         userGenderTextView = root.findViewById(R.id.gender);
         phoneNumberTextView = root.findViewById(R.id.phone_number);
         realPickUpTimeTextView = root.findViewById(R.id.real_pick_up_time);
-        imageVIew = root.findViewById(R.id.image);
+        imageView = root.findViewById(R.id.image);
         chatBUtton = root.findViewById(R.id.chat_button);
-        doneButton = root.findViewById(R.id.done_button);
+        pickUpButton = root.findViewById(R.id.pick_up_button);
         vehicleExpand = root.findViewById(R.id.vehicle_expand);
         paymentExpand = root.findViewById(R.id.payment_expand);
         driverExpand = root.findViewById(R.id.user_expand);
@@ -197,6 +235,14 @@ public class BookingDetailFragment extends Fragment {
             }
         });
 
+        pickUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initPopupWindow(booking);
+                popupWindow.showAsDropDown(root, 0, 0);
+            }
+        });
+
         return root;
     }
 
@@ -213,6 +259,9 @@ public class BookingDetailFragment extends Fragment {
         String amount = booking.getPayment().getAmount() + " " + booking.getPayment().getCurrency();
         amountTextView.setText(amount);
         methodTextView.setText("Card");
+        if(booking.getRealPickUpTime() != null && !booking.getRealPickUpTime().isEmpty()){
+            realPickUpTimeTextView.setText(booking.getRealPickUpTime());
+        }
 
         if(booking.getUser() != null){
             firebaseManager.getUserByID(booking.getUser(), new FirebaseManager.OnFetchListener<User>() {
@@ -234,8 +283,6 @@ public class BookingDetailFragment extends Fragment {
                             }
                         });
                     }
-
-                    hideLoadingDialog(progressDialog);
                 }
 
                 @Override
@@ -244,6 +291,23 @@ public class BookingDetailFragment extends Fragment {
                     hideLoadingDialog(progressDialog);
                 }
             });
+        }
+
+        if(booking.getPickUpImage() != null && !booking.getPickUpImage().isEmpty()){
+            firebaseManager.retrieveImage(booking.getPickUpImage(), new FirebaseManager.OnRetrieveImageListener() {
+                @Override
+                public void onRetrieveImageSuccess(Bitmap bitmap) {
+                    imageView.setImageBitmap(bitmap);
+                    hideLoadingDialog(progressDialog);
+                }
+
+                @Override
+                public void onRetrieveImageFailure(String message) {
+
+                }
+            });
+        } else {
+            hideLoadingDialog(progressDialog);
         }
     }
 
@@ -256,5 +320,203 @@ public class BookingDetailFragment extends Fragment {
             default:
                 return "Unknown";
         }
+    }
+
+    public void initPopupWindow(Booking booking) {
+        LayoutInflater inflater = (LayoutInflater) requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.pop_up_pick_up_form, null);
+
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        popupWindow.setTouchable(true);
+        // Set the background color with alpha transparency
+        popupView.setBackgroundColor(getResources().getColor(R.color.popup_background, null));
+
+        ImageView picUpImageView = popupView.findViewById(R.id.image);
+        timePicker = popupView.findViewById(R.id.time_picker);
+        Button submitButton = popupView.findViewById(R.id.submitNewAddressBtn);
+        ImageView cancelBtn = popupView.findViewById(R.id.cancelBtn);
+
+
+        picUpImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectImage();
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showLoadingDialog(progressDialog);
+                String realPickUpTime = getTimeFromPicker();
+                if (cropped != null && !realPickUpTime.isEmpty()) {
+                    imagePath = STORAGE_PATH + generateUniquePath() + ".jpg";
+                    Log.d("submit", "path: " + imagePath);
+                    firebaseManager.uploadImage(cropped, imagePath, new FirebaseManager.OnTaskCompleteListener() {
+                        @Override
+                        public void onTaskSuccess(String message) {
+                            AndroidUtil.hideLoadingDialog(progressDialog);
+                            booking.setRealPickUpTime(realPickUpTime);
+                            booking.setPickUpImage(imagePath);
+                            booking.setStatus("Picked Up");
+
+                            updateUser(booking);
+                            updateDriver(booking);
+                            updateBooking(booking);
+                        }
+
+                        @Override
+                        public void onTaskFailure(String message) {
+                            AndroidUtil.hideLoadingDialog(progressDialog);
+                            showToast(requireContext(), "Upload Image failed");
+                        }
+                    });
+                } else {
+                    AndroidUtil.hideLoadingDialog(progressDialog);
+                }
+
+                // Dismiss the PopupWindow after updating the homeList
+                popupWindow.dismiss();
+            }
+        });
+
+        popupWindow.showAsDropDown(root, 0, 0);
+    }
+
+    private void launchImageCropper(Uri uri) {
+        CropImageOptions cropImageOptions = new CropImageOptions();
+        cropImageOptions.imageSourceIncludeGallery = false;
+        cropImageOptions.imageSourceIncludeCamera = true;
+        CropImageContractOptions cropImageContractOptions = new CropImageContractOptions(uri, cropImageOptions);
+        cropImage.launch(cropImageContractOptions);
+    }
+
+    private void selectImage() {
+        getImageFile();
+    }
+
+    private void getImageFile() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        getImage.launch(intent);
+    }
+
+    private String generateUniquePath() {
+        return String.valueOf(System.currentTimeMillis());
+    }
+
+    @SuppressLint("DefaultLocale")
+    private String getTimeFromPicker() {
+        int hour, minute;
+
+        hour = timePicker.getHour();
+        minute = timePicker.getMinute();
+
+        String amPm;
+
+        if (hour >= 12) {
+            amPm = "PM";
+            if (hour > 12) {
+                hour -= 12;
+            }
+        } else {
+            amPm = "AM";
+            if (hour == 0) {
+                hour = 12;
+            }
+        }
+        return String.format("%02d:%02d %s", hour, minute, amPm);
+    }
+
+    private void updateUser(Booking booking){
+        firebaseManager.getUserByID(booking.getUser(), new FirebaseManager.OnFetchListener<User>() {
+            @Override
+            public void onFetchSuccess(User object) {
+                for(Booking bookingInList: object.getBookings()){
+                    if(booking.getId().equals(bookingInList.getId())){
+                        bookingInList.setRealPickUpTime(booking.getRealPickUpTime());
+                        bookingInList.setPickUpImage(booking.getPickUpImage());
+                        break;
+                    }
+                }
+
+                firebaseManager.updateUser(booking.getUser(), object, new FirebaseManager.OnTaskCompleteListener() {
+                    @Override
+                    public void onTaskSuccess(String message) {
+
+                    }
+
+                    @Override
+                    public void onTaskFailure(String message) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
+            }
+        });
+    }
+
+    private void updateDriver(Booking booking){
+        for (Booking bookingInList: driver.getBookings()){
+            if(booking.getId().equals(bookingInList.getId())){
+                bookingInList.setRealPickUpTime(booking.getRealPickUpTime());
+                bookingInList.setPickUpImage(booking.getPickUpImage());
+                break;
+            }
+        }
+
+        firebaseManager.updateDriver(driver, new FirebaseManager.OnTaskCompleteListener() {
+            @Override
+            public void onTaskSuccess(String message) {
+                updateUI(booking);
+            }
+
+            @Override
+            public void onTaskFailure(String message) {
+
+            }
+        });
+    }
+
+    private void updateBooking(Booking booking){
+        firebaseManager.fetchBookingById(bookingID, new FirebaseManager.OnFetchListener<BookingResponse>() {
+            @Override
+            public void onFetchSuccess(BookingResponse object) {
+                // Handle the fetched booking response
+                String key = object.getId();
+                firebaseManager.updateBooking(key, booking, new FirebaseManager.OnTaskCompleteListener() {
+                    @Override
+                    public void onTaskSuccess(String message) {
+                        showToast(requireContext(), message);
+                        AndroidUtil.hideLoadingDialog(progressDialog);
+                    }
+
+                    @Override
+                    public void onTaskFailure(String message) {
+                        showToast(requireContext(), message);
+                        AndroidUtil.hideLoadingDialog(progressDialog);
+                    }
+                });
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+                // Handle the failure to fetch the booking
+                showToast(requireContext(), message);
+                hideLoadingDialog(progressDialog);
+            }
+        });
+
     }
 }
