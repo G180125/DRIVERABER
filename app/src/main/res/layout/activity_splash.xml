@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.Register.SplashActivity"
+    android:background="@color/background_color_blue"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="90dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="90dp"
+            android:src="@drawable/splash_icon_512"
+            app:tint="@color/pale_blue" />
+
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/DotsLoaderContainerLL"
+        android:gravity="center"
+        >
+        <com.agrawalsuneet.dotsloader.loaders.TashieLoader
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tashieloader_animDelay="200"
+            app:tashieloader_animDur="1000"
+            app:tashieloader_dotsColor="@color/light_black"
+            app:tashieloader_dotsDist="5dp"
+            app:tashieloader_dotsRadius="5dp"
+            app:tashieloader_interpolator="@android:anim/accelerate_interpolator"
+            app:tashieloader_noOfDots="3"
+            android:gravity="center"
+            android:id="@+id/splashScreen_ProgressBar"
+            android:layout_gravity="bottom"
+            android:layout_margin="30dp"/>
+    </LinearLayout>
+
+
+</RelativeLayout>
