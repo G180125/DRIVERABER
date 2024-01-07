@@ -230,6 +230,56 @@ public class FirebaseManager {
         }).start();
     }
 
+    public void getBookingsByStatus(String driverID, String status, OnFetchListListener<Booking> listener){
+        List<Booking> bookingList = new ArrayList<>();
+        getDriverByID(driverID, new OnFetchListener<Driver>() {
+            @Override
+            public void onFetchSuccess(Driver object) {
+                if(status.equals("All")){
+                    listener.onDataChanged(object.getBookings());
+                } else {
+                    for (Booking booking : object.getBookings()) {
+                        if (booking.getStatus().equals(status)) {
+                            bookingList.add(booking);
+                        }
+                    }
+
+                    listener.onDataChanged(bookingList);
+                }
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
+            }
+        });
+    }
+
+    public void getBookingByDate(String driverID, String date, OnFetchListListener<Booking> listener){
+        List<Booking> bookingList = new ArrayList<>();
+        getDriverByID(driverID, new OnFetchListener<Driver>() {
+            @Override
+            public void onFetchSuccess(Driver object) {
+                if(date == null){
+                    listener.onDataChanged(object.getBookings());
+                } else {
+                    for (Booking booking : object.getBookings()) {
+                        if (booking.getBookingDate().equals(date)) {
+                            bookingList.add(booking);
+                        }
+                    }
+
+                    listener.onDataChanged(bookingList);
+                }
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
+            }
+        });
+    }
+
     public void active(String driverID, OnTaskCompleteListener listener){
         new Thread(() -> {
             this.firestore.collection(this.COLLECTION_DRIVERS)
@@ -378,6 +428,50 @@ public class FirebaseManager {
 
     }
 
+    public void fetchBookingById(String bookingId, OnFetchListener<BookingResponse> listener) {
+        DatabaseReference reference = this.database.getReference(COLLECTION_BOOKINGS);
+
+        reference.orderByChild("booking/id").equalTo(bookingId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            DataSnapshot bookingSnapshot = snapshot.getChildren().iterator().next();
+                            BookingResponse bookingResponse = bookingSnapshot.getValue(BookingResponse.class);
+
+                            if (bookingResponse != null) {
+                                bookingResponse.setId(bookingSnapshot.getKey());
+                                listener.onFetchSuccess(bookingResponse);
+                            } else {
+                                listener.onFetchFailure("BookingResponse is null");
+                            }
+                        } else {
+                            listener.onFetchFailure("Booking not found");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.onFetchFailure(error.getMessage());
+                    }
+                });
+    }
+
+
+    public void updateBooking(String key, Booking booking, OnTaskCompleteListener listener){
+        DatabaseReference bookingRef = this.database.getReference(COLLECTION_BOOKINGS).child(key);
+
+        bookingRef.child("booking").setValue(booking)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Update successful
+                        listener.onTaskSuccess("Pick Up Successfully");
+                    } else {
+                        // Handle the error
+                        listener.onTaskFailure(task.getException().getMessage());
+                    }
+                });
+    }
 
     public void updateUser(String userID, User user, OnTaskCompleteListener listener) {
         new Thread(() -> {
