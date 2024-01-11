@@ -35,6 +35,7 @@ import android.widget.TimePicker;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
+import com.example.driveraber.DrivingFragment;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
@@ -56,9 +57,9 @@ public class BookingDetailFragment extends Fragment {
     private Driver driver;
     private Booking booking;
     private String bookingID, userId, imagePath;
-    private TextView pickUpTextView, destinationTextView, bookingTimeTextView, statusTextView, brandTextView, vehicleNameTextView, colorTextView, seatTextView, plateTextView, amountTextView, methodTextView, userNameTextView, userGenderTextView, phoneNumberTextView, realPickUpTimeTextView;
+    private TextView pickUpTextView, destinationTextView, bookingDateTextView, bookingTimeTextView, etaTextView, statusTextView, brandTextView, vehicleNameTextView, colorTextView, seatTextView, plateTextView, amountTextView, methodTextView, userNameTextView, userGenderTextView, phoneNumberTextView, realPickUpTimeTextView;
     private CircleImageView avatar;
-    private ImageView backButton, imageView, vehicleExpand, paymentExpand, driverExpand, resourceExpand;
+    private ImageView backButton, imageView, vehicleExpand, paymentExpand, driverExpand, resourceExpand, pickUpImageView;
     private CardView vehicleCardView, paymentCardView, driverCardView, resourceCardView;
     private boolean[] imageViewClickStates = {false, false, false, false};
     private Button pickUpButton, chatBUtton;
@@ -80,6 +81,8 @@ public class BookingDetailFragment extends Fragment {
     private final ActivityResultLauncher<CropImageContractOptions> cropImage = registerForActivityResult(new CropImageContract(), result -> {
         if (result.isSuccessful()) {
             cropped = BitmapFactory.decodeFile(result.getUriFilePath(requireContext(), true));
+            imageView.setImageBitmap(cropped);
+            pickUpImageView.setImageBitmap(cropped);
         }
     });
     @Override
@@ -119,7 +122,9 @@ public class BookingDetailFragment extends Fragment {
         backButton = root.findViewById(R.id.back);
         pickUpTextView = root.findViewById(R.id.pick_up);
         destinationTextView = root.findViewById(R.id.destination);
+        bookingDateTextView = root.findViewById(R.id.booking_date);
         bookingTimeTextView = root.findViewById(R.id.booking_time);
+        etaTextView = root.findViewById(R.id.eta);
         statusTextView = root.findViewById(R.id.status);
         brandTextView = root.findViewById(R.id.brand);
         vehicleNameTextView = root.findViewById(R.id.name);
@@ -247,16 +252,24 @@ public class BookingDetailFragment extends Fragment {
     }
 
     private void updateUI(Booking booking){
+        if(booking.getStatus().equals("Picked Up")){
+            pickUpButton.setVisibility(View.GONE);
+        }
+
         pickUpTextView.setText(booking.getPickUp().getAddress());
         destinationTextView.setText(booking.getDestination().getAddress());
+        bookingDateTextView.setText(booking.getBookingDate());
         bookingTimeTextView.setText(booking.getBookingTime());
+        etaTextView.setText(booking.getETA());
         statusTextView.setText(booking.getStatus());
         brandTextView.setText(booking.getVehicle().getBrand());
         vehicleNameTextView.setText(booking.getVehicle().getName());
         colorTextView.setText(booking.getVehicle().getColor());
         seatTextView.setText(booking.getVehicle().getSeatCapacity());
         plateTextView.setText(booking.getVehicle().getNumberPlate());
-        String amount = booking.getPayment().getAmount() + " " + booking.getPayment().getCurrency();
+        double paymentAmount = booking.getPayment().getAmount();
+        String roundedPayment = String.format("%.0f", paymentAmount); // Rounds to 0 decimal places
+        String amount = roundedPayment + " " + booking.getPayment().getCurrency();
         amountTextView.setText(amount);
         methodTextView.setText("Card");
         if(booking.getPickUp().getRealPickUpTime() != null && !booking.getPickUp().getRealPickUpTime().isEmpty()){
@@ -331,13 +344,13 @@ public class BookingDetailFragment extends Fragment {
         // Set the background color with alpha transparency
         popupView.setBackgroundColor(getResources().getColor(R.color.popup_background, null));
 
-        ImageView picUpImageView = popupView.findViewById(R.id.image);
+        pickUpImageView = popupView.findViewById(R.id.image);
         timePicker = popupView.findViewById(R.id.time_picker);
         Button submitButton = popupView.findViewById(R.id.submitNewAddressBtn);
         ImageView cancelBtn = popupView.findViewById(R.id.cancelBtn);
 
 
-        picUpImageView.setOnClickListener(new View.OnClickListener() {
+        pickUpImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectImage();
@@ -358,7 +371,6 @@ public class BookingDetailFragment extends Fragment {
                 String realPickUpTime = getTimeFromPicker();
                 if (cropped != null && !realPickUpTime.isEmpty()) {
                     imagePath = STORAGE_PATH + generateUniquePath() + ".jpg";
-                    Log.d("submit", "path: " + imagePath);
                     firebaseManager.uploadImage(cropped, imagePath, new FirebaseManager.OnTaskCompleteListener() {
                         @Override
                         public void onTaskSuccess(String message) {
@@ -370,6 +382,8 @@ public class BookingDetailFragment extends Fragment {
                             updateUser(booking);
                             updateDriver(booking);
                             updateBooking(booking);
+
+
                         }
 
                         @Override
@@ -500,6 +514,8 @@ public class BookingDetailFragment extends Fragment {
                     public void onTaskSuccess(String message) {
                         showToast(requireContext(), message);
                         AndroidUtil.hideLoadingDialog(progressDialog);
+
+                        navigateToDrivingFragment(booking.getId());
                     }
 
                     @Override
@@ -517,6 +533,20 @@ public class BookingDetailFragment extends Fragment {
                 hideLoadingDialog(progressDialog);
             }
         });
+    }
 
+    private void navigateToDrivingFragment(String bookingId){
+        DrivingFragment fragment = new DrivingFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("bookingID", bookingId);
+        fragment.setArguments(bundle);
+
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        fragmentTransaction.replace(R.id.fragment_main_container, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 }

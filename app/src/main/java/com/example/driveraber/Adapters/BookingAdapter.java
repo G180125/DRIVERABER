@@ -71,8 +71,11 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             destinationTextView.setText(booking.getDestination().getAddress());
             bookingTimeTextView.setText(booking.getBookingTime());
             vehicleTextView.setText(booking.getVehicle().getNumberPlate());
-            String payment = booking.getPayment().getAmount() + " " + booking.getPayment().getCurrency();
-            paymentTextView.setText(payment);
+            double paymentAmount = booking.getPayment().getAmount();
+            String roundedPayment = String.format("%.0f", paymentAmount); // Rounds to 0 decimal places
+            String amount = roundedPayment + " " + booking.getPayment().getCurrency();
+            paymentTextView.setText(amount);
+
             viewButton.setText("View Detail");
         }
     }

@@ -142,4 +142,22 @@ public class Booking {
     public void setBookingDate(String bookingDate) {
         this.bookingDate = bookingDate;
     }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id='" + id + '\'' +
+                ", pickUp=" + pickUp +
+                ", destination=" + destination +
+                ", ETA='" + ETA + '\'' +
+                ", bookingTime='" + bookingTime + '\'' +
+                ", bookingDate='" + bookingDate + '\'' +
+                ", payment=" + payment +
+                ", vehicle=" + vehicle +
+                ", emergencyContact=" + emergencyContact +
+                ", status='" + status + '\'' +
+                ", userID='" + userID + '\'' +
+                ", driverID='" + driverID + '\'' +
+                '}';
+    }
 }
