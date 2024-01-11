@@ -247,7 +247,7 @@ public class BookingDetailFragment extends Fragment {
     }
 
     private void updateUI(Booking booking){
-        pickUpTextView.setText(booking.getPickUp());
+        pickUpTextView.setText(booking.getPickUp().getAddress());
         destinationTextView.setText(booking.getDestination().getAddress());
         bookingTimeTextView.setText(booking.getBookingTime());
         statusTextView.setText(booking.getStatus());
@@ -259,8 +259,8 @@ public class BookingDetailFragment extends Fragment {
         String amount = booking.getPayment().getAmount() + " " + booking.getPayment().getCurrency();
         amountTextView.setText(amount);
         methodTextView.setText("Card");
-        if(booking.getRealPickUpTime() != null && !booking.getRealPickUpTime().isEmpty()){
-            realPickUpTimeTextView.setText(booking.getRealPickUpTime());
+        if(booking.getPickUp().getRealPickUpTime() != null && !booking.getPickUp().getRealPickUpTime().isEmpty()){
+            realPickUpTimeTextView.setText(booking.getPickUp().getRealPickUpTime());
         }
 
         if(booking.getUser() != null){
@@ -293,8 +293,8 @@ public class BookingDetailFragment extends Fragment {
             });
         }
 
-        if(booking.getPickUpImage() != null && !booking.getPickUpImage().isEmpty()){
-            firebaseManager.retrieveImage(booking.getPickUpImage(), new FirebaseManager.OnRetrieveImageListener() {
+        if(booking.getPickUp().getPickUpImage() != null && !booking.getPickUp().getPickUpImage().isEmpty()){
+            firebaseManager.retrieveImage(booking.getPickUp().getPickUpImage(), new FirebaseManager.OnRetrieveImageListener() {
                 @Override
                 public void onRetrieveImageSuccess(Bitmap bitmap) {
                     imageView.setImageBitmap(bitmap);
@@ -363,8 +363,8 @@ public class BookingDetailFragment extends Fragment {
                         @Override
                         public void onTaskSuccess(String message) {
                             AndroidUtil.hideLoadingDialog(progressDialog);
-                            booking.setRealPickUpTime(realPickUpTime);
-                            booking.setPickUpImage(imagePath);
+                            booking.getPickUp().setRealPickUpTime(realPickUpTime);
+                            booking.getPickUp().setPickUpImage(imagePath);
                             booking.setStatus("Picked Up");
 
                             updateUser(booking);
@@ -441,8 +441,8 @@ public class BookingDetailFragment extends Fragment {
             public void onFetchSuccess(User object) {
                 for(Booking bookingInList: object.getBookings()){
                     if(booking.getId().equals(bookingInList.getId())){
-                        bookingInList.setRealPickUpTime(booking.getRealPickUpTime());
-                        bookingInList.setPickUpImage(booking.getPickUpImage());
+                        bookingInList.getPickUp().setRealPickUpTime(booking.getPickUp().getRealPickUpTime());
+                        bookingInList.getPickUp().setPickUpImage(booking.getPickUp().getPickUpImage());
                         break;
                     }
                 }
@@ -470,8 +470,8 @@ public class BookingDetailFragment extends Fragment {
     private void updateDriver(Booking booking){
         for (Booking bookingInList: driver.getBookings()){
             if(booking.getId().equals(bookingInList.getId())){
-                bookingInList.setRealPickUpTime(booking.getRealPickUpTime());
-                bookingInList.setPickUpImage(booking.getPickUpImage());
+                bookingInList.getPickUp().setRealPickUpTime(booking.getPickUp().getRealPickUpTime());
+                bookingInList.getPickUp().setPickUpImage(booking.getPickUp().getPickUpImage());
                 break;
             }
         }

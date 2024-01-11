@@ -1,16 +1,16 @@
-package com.example.driveraber.Models.User;
+package com.example.driveraber.Models.Booking;
 
-public class Home {
+public class PickUp {
     private String address;
-    private String image;
     private double latitude;
     private double longitude;
+    private String realPickUpTime;
+    private String pickUpImage;
 
-    public Home(){};
+    public PickUp() {}
 
-    public Home(String address, String image, double latitude, double longitude) {
+    public PickUp(String address, double latitude, double longitude) {
         this.address = address;
-        this.image = image;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -21,14 +21,6 @@ public class Home {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public double getLatitude() {
@@ -46,6 +38,20 @@ public class Home {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    public String getRealPickUpTime() {
+        return realPickUpTime;
+    }
+
+    public void setRealPickUpTime(String realPickUpTime) {
+        this.realPickUpTime = realPickUpTime;
+    }
+
+    public String getPickUpImage() {
+        return pickUpImage;
+    }
+
+    public void setPickUpImage(String pickUpImage) {
+        this.pickUpImage = pickUpImage;
+    }
 }
-
-
