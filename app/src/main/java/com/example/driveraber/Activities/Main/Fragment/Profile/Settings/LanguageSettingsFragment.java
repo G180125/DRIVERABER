@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,8 @@ public class LanguageSettingsFragment extends Fragment {
 
     private ProgressDialog progressDialog;
 
+    private Handler handler;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,6 +43,8 @@ public class LanguageSettingsFragment extends Fragment {
         english = root.findViewById(R.id.english);
         vietnamese = root.findViewById(R.id.vietnamese);
         buttonBack = root.findViewById(R.id.back);
+
+        handler = new Handler();
 
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,13 +92,14 @@ public class LanguageSettingsFragment extends Fragment {
             Configuration config = resources.getConfiguration();
             config.setLocale(locale);
             resources.updateConfiguration(config,resources.getDisplayMetrics());
-            hideLoadingDialog();
+
         } else {
             Log.d("Language","There is no activity");
             Toast.makeText(requireContext(), "No Activity", Toast.LENGTH_SHORT).show();
-            hideLoadingDialog();
+
         }
     }
+
 
     private void showLoadingDialog() {
         requireActivity().runOnUiThread(() -> {
@@ -101,6 +107,13 @@ public class LanguageSettingsFragment extends Fragment {
             progressDialog.setMessage("Loading...");
             progressDialog.setCancelable(false);
             progressDialog.show();
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    hideLoadingDialog();
+                }
+            }, 2000);
         });
     }
 

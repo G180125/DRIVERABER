@@ -155,7 +155,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="About Us"
+                            android:text="@string/about_us"
                             android:layout_marginLeft="8dp"
                             android:layout_weight="1"/>
                         <ImageView
@@ -189,7 +189,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Help"
+                            android:text="@string/help"
                             android:layout_marginLeft="8dp"
                             android:layout_weight="1"/>
                         <ImageView
@@ -219,7 +219,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Logout"
+                            android:text="@string/logout"
                             android:layout_marginLeft="8dp"
                             android:layout_weight="1"
                             android:textColor="@color/quantum_googred"/>

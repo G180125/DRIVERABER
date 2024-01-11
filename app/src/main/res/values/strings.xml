@@ -61,6 +61,9 @@
     <!-- Forget Password    -->
     <string name="find_your_email">Find your email</string>
 
+    <!-- Profile Page    -->
+    <string name="about_us">About Us</string>
+
 
     <!-- About Us Page    -->
     <string name="heading_one">Our History</string>
@@ -73,6 +76,7 @@
     <string name="edit">Edit</string>
     <string name="english">English</string>
     <string name="Vietnamese">Tiếng Việt</string>
+
 
 
 </resources>
