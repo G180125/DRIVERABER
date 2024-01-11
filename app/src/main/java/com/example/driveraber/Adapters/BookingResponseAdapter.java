@@ -1,5 +1,6 @@
 package com.example.driveraber.Adapters;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,8 +73,11 @@ public class BookingResponseAdapter extends RecyclerView.Adapter<BookingResponse
             destinationTextView.setText(booking.getDestination().getAddress());
             bookingTimeTextView.setText(booking.getBookingTime());
             vehicleTextView.setText(booking.getVehicle().getNumberPlate());
-            String payment = booking.getPayment().getAmount() + " " + booking.getPayment().getCurrency();
+            double paymentAmount = booking.getPayment().getAmount();
+            @SuppressLint("DefaultLocale") String roundedPayment = String.format("%.0f", paymentAmount); // Rounds to 0 decimal places
+            String payment = roundedPayment + " " + booking.getPayment().getCurrency();
             paymentTextView.setText(payment);
+
         }
     }
 

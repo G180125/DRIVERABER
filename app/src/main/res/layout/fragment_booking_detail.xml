@@ -125,6 +125,38 @@
                                 android:padding="8dp"
                                 android:scrollHorizontally="true"
                                 android:singleLine="true"
+                                android:text="Booking Date: "
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+
+                                android:layout_marginRight="10dp"
+                                android:id="@+id/booking_date"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:padding="8dp"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:text="Booking Date"
+                                android:textSize="20sp"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+                            <TextView
+
+                                android:layout_marginRight="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:padding="8dp"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
                                 android:text="Booking Time: "
                                 android:textSize="20sp"
                                 android:textStyle="bold" />
@@ -141,6 +173,38 @@
                                 android:scrollHorizontally="true"
                                 android:singleLine="true"
                                 android:text="Booking Time"
+                                android:textSize="20sp"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+                            <TextView
+
+                                android:layout_marginRight="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:padding="8dp"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:text="ETA: "
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+
+                                android:layout_marginRight="10dp"
+                                android:id="@+id/eta"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:padding="8dp"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:text="ETA"
                                 android:textSize="20sp"/>
                         </LinearLayout>
 
@@ -729,7 +793,7 @@
                     android:id="@+id/pick_up_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Pick_up"
+                    android:text="Pick Up"
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="8dp"
                     android:layout_marginHorizontal="8dp"/>
