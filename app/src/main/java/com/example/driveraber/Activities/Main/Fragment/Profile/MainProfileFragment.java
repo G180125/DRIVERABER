@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.driveraber.Activities.LoginActivity;
+import com.example.driveraber.Activities.Main.Fragment.Profile.AboutUs.AboutUsActivity;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.R;
@@ -87,12 +88,14 @@ public class MainProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AndroidUtil.showToast(requireContext(),"history card is clicked");
+
             }
         });
 
         aboutUsCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivity(new Intent(requireContext(), AboutUsActivity.class));
                 AndroidUtil.showToast(requireContext(),"about us card is clicked");
             }
         });
