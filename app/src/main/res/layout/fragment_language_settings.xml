@@ -39,7 +39,8 @@
                 </LinearLayout>
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:outlineProvider="none">
                     <TextView
                         android:id="@+id/english"
                         android:layout_width="match_parent"
@@ -59,7 +60,9 @@
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:elevation="0dp"
+                    android:outlineProvider="none">
                     <TextView
                         android:id="@+id/vietnamese"
                         android:layout_width="match_parent"

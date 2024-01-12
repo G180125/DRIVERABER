@@ -65,6 +65,8 @@
 
     <!-- Profile Page    -->
     <string name="about_us">Về Chúng Tôi</string>
+    <string name="license_number">Số Bằng Lái</string>
+    <string name="total_drive">Quãng Đường</string>
 
 
     <!-- About Us Page    -->

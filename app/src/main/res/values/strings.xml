@@ -63,6 +63,8 @@
 
     <!-- Profile Page    -->
     <string name="about_us">About Us</string>
+    <string name="license_number">License Number</string>
+    <string name="total_drive">Total Drive</string>
 
 
     <!-- About Us Page    -->
