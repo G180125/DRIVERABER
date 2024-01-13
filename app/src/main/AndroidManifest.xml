@@ -26,6 +26,9 @@
         android:theme="@style/Theme.DRIVERABER"
         tools:targetApi="31">
         <activity
+            android:name=".Activities.Main.Fragment.Profile.AboutUs.AboutUsActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activities.Register.SplashActivity"
             android:exported="true">
             <intent-filter>
@@ -50,7 +53,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name=".Activities.LoginActivity"
-            android:exported="true"/>
+            android:exported="true" />
     </application>
 
 </manifest>
