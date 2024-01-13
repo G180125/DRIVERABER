@@ -61,6 +61,10 @@ dependencies {
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
     implementation("com.tbuonomo:dotsindicator:5.0")
 
+    //Route
+    implementation("com.github.jd-alexander:library:1.1.0")
+    implementation("com.google.android.material:material:1.1.0")
+
 }
 
 secrets {
