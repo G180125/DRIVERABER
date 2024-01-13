@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -32,12 +33,14 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +48,7 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class DrivingFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, RoutingListener {
+public class DrivingFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener, RoutingListener {
     private FirebaseManager firebaseManager;
     private ProgressDialog progressDialog;
     private Booking booking;
@@ -57,8 +60,35 @@ public class DrivingFragment extends Fragment implements OnMapReadyCallback, Goo
     private LatLng start;
     private LatLng end;
     private List<Polyline> polylines;
+    private Button showRoute;
 
     private boolean isUpdateUI;
+
+    public interface FirebaseDataCallback {
+        void onDataLoaded();
+    }
+
+    private FirebaseDataCallback firebaseDataCallback;
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Initialize Firebase data callback
+        firebaseDataCallback = new FirebaseDataCallback() {
+            @Override
+            public void onDataLoaded() {
+                if (mMap != null) {
+                    mMap.clear();
+                }
+                SupportMapFragment mapFragment =
+                        (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+                if (mapFragment != null) {
+                    mapFragment.getMapAsync(callback);
+                }
+            }
+        };
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -88,13 +118,12 @@ public class DrivingFragment extends Fragment implements OnMapReadyCallback, Goo
                         booking = bookingInList;
                         start = new LatLng(booking.getPickUp().getLatitude(), booking.getPickUp().getLongitude());
                         end = new LatLng(booking.getDestination().getLatitude(), booking.getDestination().getLongitude());
-//                        lat1 = booking.getPickUp().getLatitude();
-//                        lng1 = booking.getPickUp().getLongitude();
-//
-//                        lat2 = booking.getDestination().getLatitude();
-//                        lng2 = booking.getDestination().getLongitude();
                         updateUI(booking);
-                        Findroutes(start, end);
+
+                        // Notify the callback that the data is loaded
+                        if (firebaseDataCallback != null) {
+                            firebaseDataCallback.onDataLoaded();
+                        }
                     }
                 }
             }
@@ -117,124 +146,118 @@ public class DrivingFragment extends Fragment implements OnMapReadyCallback, Goo
         isUpdateUI = true;
     }
 
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        mMap = googleMap;
+    private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-        LatLng latLng1 = new LatLng(lat1, lng1);
-        LatLng latLng2 = new LatLng(lat2, lng2);
+        @Override
+        public void onMapReady(@NonNull GoogleMap googleMap) {
+            mMap = googleMap;
 
-        MarkerOptions pickup = new MarkerOptions();
-        pickup.position(latLng1).title("Pick Up Location");
+            Log.d("Show route", "onMapReady");
 
-        MarkerOptions destination = new MarkerOptions();
-        destination.position(latLng2).title("Destination Location");
+            MarkerOptions pickup = new MarkerOptions();
+            pickup.position(start).title("Pick Up Location");
 
-        // Add markers to the map
-        mMap.addMarker(pickup);
-        mMap.addMarker(destination);
+            MarkerOptions destination = new MarkerOptions();
+            destination.position(end).title("Destination Location");
 
-        // Move camera to a position that shows both markers
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(pickup.getPosition());
-        builder.include(destination.getPosition());
-        LatLngBounds bounds = builder.build();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100)); // 100 is the padding
+            // Add markers to the map
+            mMap.addMarker(pickup);
+            mMap.addMarker(destination);
 
-        Button showRoute = getView().findViewById(R.id.show_route_button);
-        showRoute.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Findroutes(start, end);
-                Log.d("Show route", "Done");
+            // Move camera to a position that shows both markers
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(pickup.getPosition());
+            builder.include(destination.getPosition());
+            LatLngBounds bounds = builder.build();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100)); // 100 is the padding
+
+            Findroutes(start, end);
+
+        }
+    }
+
+        ;
+
+        // function to find Routes.
+        public void Findroutes(LatLng Start, LatLng End) {
+            if (Start == null || End == null) {
+                Toast.makeText(getActivity(), "Unable to get location", Toast.LENGTH_LONG).show();
+            } else {
+                Routing routing = new Routing.Builder()
+                        .travelMode(AbstractRouting.TravelMode.DRIVING)
+                        .withListener((RoutingListener) DrivingFragment.this)
+                        .alternativeRoutes(true)
+                        .waypoints(Start, End)
+                        .key(getString(R.string.GOOGLE_MAP_API))  //also define your api key here.
+                        .build();
+                routing.execute();
             }
-        });
-    }
-
-    // function to find Routes.
-    public void Findroutes(LatLng Start, LatLng End) {
-        if(Start==null || End==null) {
-            Toast.makeText(getActivity(),"Unable to get location",Toast.LENGTH_LONG).show();
         }
-        else
-        {
-            Routing routing = new Routing.Builder()
-                    .travelMode(AbstractRouting.TravelMode.DRIVING)
-                    .withListener((RoutingListener) DrivingFragment.this)
-                    .alternativeRoutes(true)
-                    .waypoints(Start, End)
-                    .key(getString(R.string.GOOGLE_MAP_API))  //also define your api key here.
-                    .build();
-            routing.execute();
+
+        //Routing call back functions.
+        @Override
+        public void onRoutingFailure(RouteException e) {
+            View parentLayout = getActivity().findViewById(android.R.id.content);
+            Snackbar snackbar = Snackbar.make(parentLayout, e.toString(), Snackbar.LENGTH_LONG);
+            snackbar.show();
         }
-    }
 
-    //Routing call back functions.
-    @Override
-    public void onRoutingFailure(RouteException e) {
-        View parentLayout = getActivity().findViewById(android.R.id.content);
-        Snackbar snackbar= Snackbar.make(parentLayout, e.toString(), Snackbar.LENGTH_LONG);
-        snackbar.show();
-    }
+        @Override
+        public void onRoutingStart() {
+            Toast.makeText(getActivity(), "Finding Route...", Toast.LENGTH_LONG).show();
+        }
 
-    @Override
-    public void onRoutingStart() {
-        Toast.makeText(getActivity(),"Finding Route...",Toast.LENGTH_LONG).show();
-    }
+        //If Route finding success..
+        @Override
+        public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
 
-    //If Route finding success..
-    @Override
-    public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
-
-        CameraUpdate center = CameraUpdateFactory.newLatLng(start);
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
-        if(polylines!=null) {
-            for (Polyline polyline : polylines) {
-                polyline.remove();
+            CameraUpdate center = CameraUpdateFactory.newLatLng(start);
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
+            if (polylines != null) {
+                for (Polyline polyline : polylines) {
+                    polyline.remove();
+                }
+                polylines.clear();
             }
-            polylines.clear();
-        }
-        PolylineOptions polyOptions = new PolylineOptions();
-        LatLng polylineStartLatLng=null;
-        LatLng polylineEndLatLng=null;
+            PolylineOptions polyOptions = new PolylineOptions();
+            LatLng polylineStartLatLng = null;
+            LatLng polylineEndLatLng = null;
 
 
-        polylines = new ArrayList<>();
-        //add route(s) to the map using polyline
-        for (int i = 0; i <route.size(); i++) {
+            polylines = new ArrayList<>();
+            //add route(s) to the map using polyline
+            for (int i = 0; i < route.size(); i++) {
 
-            if(i==shortestRouteIndex)
-            {
-                polyOptions.color(getResources().getColor(R.color.pale_blue));
-                polyOptions.width(7);
-                polyOptions.addAll(route.get(shortestRouteIndex).getPoints());
-                Polyline polyline = mMap.addPolyline(polyOptions);
-                polylineStartLatLng=polyline.getPoints().get(0);
-                int k=polyline.getPoints().size();
-                polylineEndLatLng=polyline.getPoints().get(k-1);
-                polylines.add(polyline);
+                if (i == shortestRouteIndex) {
+                    polyOptions.color(getResources().getColor(R.color.pale_blue));
+                    polyOptions.width(7);
+                    polyOptions.addAll(route.get(shortestRouteIndex).getPoints());
+                    Polyline polyline = mMap.addPolyline(polyOptions);
+                    polylineStartLatLng = polyline.getPoints().get(0);
+                    int k = polyline.getPoints().size();
+                    polylineEndLatLng = polyline.getPoints().get(k - 1);
+                    polylines.add(polyline);
+
+                }
 
             }
 
+            //Add Marker on route starting position
+            MarkerOptions startMarker = new MarkerOptions();
+            startMarker.position(polylineStartLatLng);
+
+            //Add Marker on route ending position
+            MarkerOptions endMarker = new MarkerOptions();
+            endMarker.position(polylineEndLatLng);
         }
 
-        //Add Marker on route starting position
-        MarkerOptions startMarker = new MarkerOptions();
-        startMarker.position(polylineStartLatLng);
+        @Override
+        public void onRoutingCancelled() {
+            Findroutes(start, end);
+        }
 
-        //Add Marker on route ending position
-        MarkerOptions endMarker = new MarkerOptions();
-        endMarker.position(polylineEndLatLng);
+        @Override
+        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+            Findroutes(start, end);
+        }
     }
-
-    @Override
-    public void onRoutingCancelled() {
-        Findroutes(start,end);
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Findroutes(start,end);
-    }
-
-}
