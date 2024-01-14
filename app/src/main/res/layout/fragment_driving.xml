@@ -188,7 +188,8 @@
                     android:id="@+id/done_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Done"/>
+                    android:text="Done"
+                    android:layout_marginBottom="10dp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 </RelativeLayout>

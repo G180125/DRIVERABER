@@ -113,7 +113,7 @@ public class LanguageSettingsFragment extends Fragment {
                 public void run() {
                     hideLoadingDialog();
                 }
-            }, 2000);
+            }, 1500);
         });
     }
 
