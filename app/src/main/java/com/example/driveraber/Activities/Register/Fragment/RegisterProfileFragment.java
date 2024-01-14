@@ -99,7 +99,7 @@ public class RegisterProfileFragment extends Fragment {
                 AndroidUtil.showLoadingDialog(progressDialog);
                 if(cropped == null){
                     AndroidUtil.hideLoadingDialog(progressDialog);
-                    AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
+                    AndroidUtil.showToast(requireContext(), "Please add an image.");
                     return;
                 }
 

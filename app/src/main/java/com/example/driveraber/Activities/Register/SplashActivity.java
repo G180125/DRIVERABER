@@ -38,13 +38,13 @@ public class SplashActivity extends AppCompatActivity {
         progressBar.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (mAuth.getCurrentUser() != null){
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    finish();
-                } else {
+//                if (mAuth.getCurrentUser() != null){
+//                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+//                    finish();
+//                } else {
                     startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                     finish();
-                }
+//                }
 
             }
         }, durationMillis);
