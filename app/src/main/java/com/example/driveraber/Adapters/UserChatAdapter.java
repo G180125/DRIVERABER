@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
 
@@ -21,12 +21,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserChatAdapter extends RecyclerView.Adapter<UserChatAdapter.UserViewHolder>{
     private List<User> userList;
     private UserChatAdapter.RecyclerViewClickListener mListener;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
 
     public UserChatAdapter(List<User> userList, UserChatAdapter.RecyclerViewClickListener listener){
         this.userList = userList;
         this.mListener = listener;
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
     }
 
     public void setUserList(List<User> userList) {
@@ -47,7 +47,7 @@ public class UserChatAdapter extends RecyclerView.Adapter<UserChatAdapter.UserVi
             holder.bind(user, position, null);
             return;
         }
-        firebaseManager.retrieveImage(user.getAvatar(), new FirebaseManager.OnRetrieveImageListener() {
+        firebaseManager.retrieveImage(user.getAvatar(), new FirebaseUtil.OnRetrieveImageListener() {
             @Override
             public void onRetrieveImageSuccess(Bitmap bitmap) {
                 holder.bind(user, position, bitmap);

@@ -24,8 +24,7 @@ import android.widget.RadioGroup;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
-import com.example.driveraber.Activities.Register.Fragment.RegisterAccountFragment;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
 
@@ -45,7 +44,7 @@ public class RegisterProfileFragment extends Fragment {
     private Button uploadAvatarButton, nextButton;
     private EditText nameEditText, emailEditText, phoneEditText, licenseNumberEditText;
     private RadioGroup genderRadioGroup;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private Bitmap cropped;
     private final ActivityResultLauncher<Intent> getImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -70,7 +69,7 @@ public class RegisterProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_register_profile, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
         progressDialog = new ProgressDialog(requireContext());
 
         avatar = root.findViewById(R.id.avatar);
@@ -100,7 +99,7 @@ public class RegisterProfileFragment extends Fragment {
                 }
 
                 String imagePath = STORAGE_PATH + generateUniquePath() + ".jpg";
-                firebaseManager.uploadImage(cropped, imagePath, new FirebaseManager.OnTaskCompleteListener() {
+                firebaseManager.uploadImage(cropped, imagePath, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
                         AndroidUtil.hideLoadingDialog(progressDialog);

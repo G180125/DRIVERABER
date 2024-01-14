@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.Gender;
 import com.example.driveraber.R;
@@ -27,14 +27,14 @@ public class RegisterOTPFragment extends Fragment {
     private EditText otpEditText;
     private Button nextButton;
     private String name, email, phoneNumber, gender, licenseNumber, avatar, password;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_register_otp, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -50,7 +50,7 @@ public class RegisterOTPFragment extends Fragment {
         otpEditText = root.findViewById(R.id.otp_edit_text);
         nextButton = root.findViewById(R.id.next_button);
 
-        firebaseManager.sendOTP(phoneNumber, requireActivity(),false, new FirebaseManager.MyVerificationStateChangedListener() {
+        firebaseManager.sendOTP(phoneNumber, requireActivity(),false, new FirebaseUtil.MyVerificationStateChangedListener() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
                 AndroidUtil.showToast(requireContext(), "verification completed");

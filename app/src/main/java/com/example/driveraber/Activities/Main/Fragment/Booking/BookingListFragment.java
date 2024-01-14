@@ -14,7 +14,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.driveraber.Adapters.BookingAdapter;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.User;
@@ -40,7 +39,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class BookingListFragment extends Fragment implements BookingAdapter.RecyclerViewClickListener{
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private List<Booking> bookingList;
     private BookingAdapter adapter;
@@ -61,10 +60,10 @@ public class BookingListFragment extends Fragment implements BookingAdapter.Recy
         showLoadingDialog(progressDialog);
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_booking_list, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
 
         driverID = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
-        firebaseManager.getDriverByID(driverID, new FirebaseManager.OnFetchListener<Driver>() {
+        firebaseManager.getDriverByID(driverID, new FirebaseUtil.OnFetchListener<Driver>() {
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
@@ -106,7 +105,7 @@ public class BookingListFragment extends Fragment implements BookingAdapter.Recy
             @Override
             public void onClick(View v) {
                 datePicker.setVisibility(View.GONE);
-                firebaseManager.getBookingByDate(driverID, formattedDate, new FirebaseManager.OnFetchListListener<Booking>() {
+                firebaseManager.getBookingByDate(driverID, formattedDate, new FirebaseUtil.OnFetchListListener<Booking>() {
                     @Override
                     public void onDataChanged(List<Booking> object) {
                         bookingList = object;
@@ -122,7 +121,7 @@ public class BookingListFragment extends Fragment implements BookingAdapter.Recy
                 datePicker.setVisibility(View.GONE);
                 selectedDateCardView.setVisibility(View.GONE);
 
-                firebaseManager.getBookingByDate(driverID, null, new FirebaseManager.OnFetchListListener<Booking>() {
+                firebaseManager.getBookingByDate(driverID, null, new FirebaseUtil.OnFetchListListener<Booking>() {
                     @Override
                     public void onDataChanged(List<Booking> object) {
                         bookingList = object;
@@ -150,7 +149,7 @@ public class BookingListFragment extends Fragment implements BookingAdapter.Recy
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String status = parent.getItemAtPosition(position).toString();
-                firebaseManager.getBookingsByStatus(driverID, status, new FirebaseManager.OnFetchListListener<Booking>() {
+                firebaseManager.getBookingsByStatus(driverID, status, new FirebaseUtil.OnFetchListListener<Booking>() {
                     @Override
                     public void onDataChanged(List<Booking> object) {
                         bookingList = object;

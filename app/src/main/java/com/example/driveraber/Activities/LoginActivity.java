@@ -15,8 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -25,7 +23,7 @@ import android.widget.Toast;
 
 import com.example.driveraber.Activities.Main.MainActivity;
 import com.example.driveraber.Activities.Register.RegisterActivity;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,7 +37,7 @@ import java.util.Locale;
 public class LoginActivity extends AppCompatActivity {
     private TextInputEditText emailEditText, passwordEditText,forgetEmailEditText;
     private MaterialButton loginButton, registerButton,sentButton;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
 
     private TextView forgetPassword;
 
@@ -57,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
         progressDialog = new ProgressDialog(LoginActivity.this);
 
         emailEditText = findViewById(R.id.email_edit_text);
@@ -133,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
                 String password = passwordEditText.getText().toString();
 
                 if(!email.isEmpty() && !password.isEmpty()){
-                    firebaseManager.login(email, password, new FirebaseManager.OnTaskCompleteListener() {
+                    firebaseManager.login(email, password, new FirebaseUtil.OnTaskCompleteListener() {
                         @Override
                         public void onTaskSuccess(String message) {
                             AndroidUtil.hideLoadingDialog(progressDialog);

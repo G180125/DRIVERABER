@@ -10,8 +10,12 @@ import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
 import com.example.driveraber.Activities.Main.Fragment.Booking.MainBookingFragment;
 import com.example.driveraber.Activities.Main.Fragment.Home.MainHomeFragment;
 import com.example.driveraber.Activities.Main.Fragment.Profile.MainProfileFragment;
+import com.example.driveraber.FirebaseUtil;
+import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
+
+import java.util.Objects;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -21,12 +25,16 @@ public class MainActivity extends AppCompatActivity {
     private final int ID_HOME = 2;
     private final int ID_PROFILE = 3;
     private MeowBottomNavigation bottomNavigation;
+    private FirebaseUtil firebaseManager;
+    private String token, driverId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bottomNavigation = findViewById(R.id.bottom_navigation);
+
+        firebaseManager = new FirebaseUtil();
 
         bottomNavigation.add(new MeowBottomNavigation.Model(ID_BOOKING, R.drawable.ic_booking));
         bottomNavigation.add(new MeowBottomNavigation.Model(ID_HOME, R.drawable.ic_home));
@@ -62,6 +70,42 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 return null;
+            }
+        });
+
+        firebaseManager.getFCMToken(new FirebaseUtil.OnFetchListener<String>() {
+            @Override
+            public void onFetchSuccess(String object) {
+                token = object;
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
+            }
+        });
+
+        driverId = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
+        firebaseManager.getDriverByID(driverId, new FirebaseUtil.OnFetchListener<Driver>() {
+            @Override
+            public void onFetchSuccess(Driver object) {
+                object.setFcmToken(token);
+                firebaseManager.updateDriver(object, new FirebaseUtil.OnTaskCompleteListener() {
+                    @Override
+                    public void onTaskSuccess(String message) {
+
+                    }
+
+                    @Override
+                    public void onTaskFailure(String message) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
             }
         });
     }

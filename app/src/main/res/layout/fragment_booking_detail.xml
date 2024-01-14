@@ -797,6 +797,15 @@
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="8dp"
                     android:layout_marginHorizontal="8dp"/>
+                <Button
+                    android:id="@+id/driving_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Driving"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:visibility="gone"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,17 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.driveraber.Activities.LoginActivity;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.Gender;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
-import com.google.android.material.badge.BadgeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,7 +32,7 @@ public class RegisterAccountFragment extends Fragment {
     private EditText passwordEditText, confirmPasswordEditText;
     private Button registerButton;
     private String name, email, phoneNumber, gender, licenseNumber, avatar;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
 
     @Override
@@ -45,7 +40,7 @@ public class RegisterAccountFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_register_account, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
         progressDialog = new ProgressDialog(requireContext());
 
         Bundle bundle = getArguments();
@@ -80,7 +75,7 @@ public class RegisterAccountFragment extends Fragment {
                     String currentDate = getCurrentDate();
                     driver = new Driver(email, name, phoneNumber, userGender, licenseNumber, 0.0, avatar, currentDate, new ArrayList<>(), false, false, "");
 
-                    firebaseManager.register(driver, password, new FirebaseManager.OnTaskCompleteListener() {
+                    firebaseManager.register(driver, password, new FirebaseUtil.OnTaskCompleteListener() {
                         @Override
                         public void onTaskSuccess(String message) {
                             AndroidUtil.hideLoadingDialog(progressDialog);

@@ -17,10 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.driveraber.Adapters.MessageAdapter;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Message.MyMessage;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
@@ -31,7 +30,7 @@ import java.util.Objects;
 
 public class ProfileHelpFragment extends Fragment {
     private final String ADMIN_ID ="u0SkgoA4j5YboEVkP4qXQWIXFrY2";
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private TextView nameTextView;
     private ImageView backImageView;
@@ -48,7 +47,7 @@ public class ProfileHelpFragment extends Fragment {
         AndroidUtil.showLoadingDialog(progressDialog);
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_profile_help, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
         recyclerView = root.findViewById(R.id.recycler_message);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         messageAdapter = new MessageAdapter(new ArrayList<>(), BitmapFactory.decodeResource(getResources(), R.drawable.ic_admin));
@@ -63,7 +62,7 @@ public class ProfileHelpFragment extends Fragment {
         nameTextView.setText("Admin");
         firstLoad = true;
 
-        firebaseManager.readMessage(userID, ADMIN_ID, new FirebaseManager.OnReadingMessageListener() {
+        firebaseManager.readMessage(userID, ADMIN_ID, new FirebaseUtil.OnReadingMessageListener() {
                     @Override
                     public void OnMessageDataChanged(List<MyMessage> messageList) {
                         updateMessageList(messageList);

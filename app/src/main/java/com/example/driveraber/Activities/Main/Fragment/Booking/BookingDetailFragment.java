@@ -21,12 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -36,7 +34,7 @@ import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.example.driveraber.DrivingFragment;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Staff.Driver;
@@ -45,14 +43,13 @@ import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
 
-import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class BookingDetailFragment extends Fragment {
     private static final String STORAGE_PATH = "pickup/";
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private Driver driver;
     private Booking booking;
@@ -62,7 +59,7 @@ public class BookingDetailFragment extends Fragment {
     private ImageView backButton, imageView, vehicleExpand, paymentExpand, driverExpand, resourceExpand, pickUpImageView;
     private CardView vehicleCardView, paymentCardView, driverCardView, resourceCardView;
     private boolean[] imageViewClickStates = {false, false, false, false};
-    private Button pickUpButton, chatBUtton;
+    private Button pickUpButton, chatBUtton, drivingButton;
     private Bitmap cropped;
     private PopupWindow popupWindow;
     private View root;
@@ -92,7 +89,7 @@ public class BookingDetailFragment extends Fragment {
         showLoadingDialog(progressDialog);
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_booking_detail, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
 
         Bundle args = getArguments();
         if (args != null) {
@@ -100,7 +97,7 @@ public class BookingDetailFragment extends Fragment {
         }
 
         String id = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
-        firebaseManager.getDriverByID(id, new FirebaseManager.OnFetchListener<Driver>() {
+        firebaseManager.getDriverByID(id, new FirebaseUtil.OnFetchListener<Driver>() {
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
@@ -141,6 +138,7 @@ public class BookingDetailFragment extends Fragment {
         imageView = root.findViewById(R.id.image);
         chatBUtton = root.findViewById(R.id.chat_button);
         pickUpButton = root.findViewById(R.id.pick_up_button);
+        drivingButton = root.findViewById(R.id.driving_button);
         vehicleExpand = root.findViewById(R.id.vehicle_expand);
         paymentExpand = root.findViewById(R.id.payment_expand);
         driverExpand = root.findViewById(R.id.user_expand);
@@ -248,12 +246,31 @@ public class BookingDetailFragment extends Fragment {
             }
         });
 
+        drivingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DrivingFragment fragment = new DrivingFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("bookingID", booking.getId());
+                fragment.setArguments(bundle);
+
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                fragmentTransaction.replace(R.id.fragment_main_container, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
         return root;
     }
 
     private void updateUI(Booking booking){
         if(booking.getStatus().equals("Picked Up")){
             pickUpButton.setVisibility(View.GONE);
+            drivingButton.setVisibility(View.VISIBLE);
         }
 
         pickUpTextView.setText(booking.getPickUp().getAddress());
@@ -277,14 +294,14 @@ public class BookingDetailFragment extends Fragment {
         }
 
         if(booking.getUser() != null){
-            firebaseManager.getUserByID(booking.getUser(), new FirebaseManager.OnFetchListener<User>() {
+            firebaseManager.getUserByID(booking.getUser(), new FirebaseUtil.OnFetchListener<User>() {
                 @Override
                 public void onFetchSuccess(User object) {
                     userNameTextView.setText(object.getName());
                     userGenderTextView.setText(getGenderText(object.getGender()));
                     phoneNumberTextView.setText(object.getPhoneNumber());
                     if(object.getAvatar() != null && !object.getAvatar().isEmpty()){
-                        firebaseManager.retrieveImage(object.getAvatar(), new FirebaseManager.OnRetrieveImageListener() {
+                        firebaseManager.retrieveImage(object.getAvatar(), new FirebaseUtil.OnRetrieveImageListener() {
                             @Override
                             public void onRetrieveImageSuccess(Bitmap bitmap) {
                                 avatar.setImageBitmap(bitmap);
@@ -307,7 +324,7 @@ public class BookingDetailFragment extends Fragment {
         }
 
         if(booking.getPickUp().getPickUpImage() != null && !booking.getPickUp().getPickUpImage().isEmpty()){
-            firebaseManager.retrieveImage(booking.getPickUp().getPickUpImage(), new FirebaseManager.OnRetrieveImageListener() {
+            firebaseManager.retrieveImage(booking.getPickUp().getPickUpImage(), new FirebaseUtil.OnRetrieveImageListener() {
                 @Override
                 public void onRetrieveImageSuccess(Bitmap bitmap) {
                     imageView.setImageBitmap(bitmap);
@@ -371,7 +388,7 @@ public class BookingDetailFragment extends Fragment {
                 String realPickUpTime = getTimeFromPicker();
                 if (cropped != null && !realPickUpTime.isEmpty()) {
                     imagePath = STORAGE_PATH + generateUniquePath() + ".jpg";
-                    firebaseManager.uploadImage(cropped, imagePath, new FirebaseManager.OnTaskCompleteListener() {
+                    firebaseManager.uploadImage(cropped, imagePath, new FirebaseUtil.OnTaskCompleteListener() {
                         @Override
                         public void onTaskSuccess(String message) {
                             AndroidUtil.hideLoadingDialog(progressDialog);
@@ -450,7 +467,7 @@ public class BookingDetailFragment extends Fragment {
     }
 
     private void updateUser(Booking booking){
-        firebaseManager.getUserByID(booking.getUser(), new FirebaseManager.OnFetchListener<User>() {
+        firebaseManager.getUserByID(booking.getUser(), new FirebaseUtil.OnFetchListener<User>() {
             @Override
             public void onFetchSuccess(User object) {
                 for(Booking bookingInList: object.getBookings()){
@@ -461,7 +478,7 @@ public class BookingDetailFragment extends Fragment {
                     }
                 }
 
-                firebaseManager.updateUser(booking.getUser(), object, new FirebaseManager.OnTaskCompleteListener() {
+                firebaseManager.updateUser(booking.getUser(), object, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
 
@@ -490,7 +507,7 @@ public class BookingDetailFragment extends Fragment {
             }
         }
 
-        firebaseManager.updateDriver(driver, new FirebaseManager.OnTaskCompleteListener() {
+        firebaseManager.updateDriver(driver, new FirebaseUtil.OnTaskCompleteListener() {
             @Override
             public void onTaskSuccess(String message) {
                 updateUI(booking);
@@ -504,12 +521,12 @@ public class BookingDetailFragment extends Fragment {
     }
 
     private void updateBooking(Booking booking){
-        firebaseManager.fetchBookingById(bookingID, new FirebaseManager.OnFetchListener<BookingResponse>() {
+        firebaseManager.fetchBookingById(bookingID, new FirebaseUtil.OnFetchListener<BookingResponse>() {
             @Override
             public void onFetchSuccess(BookingResponse object) {
                 // Handle the fetched booking response
                 String key = object.getId();
-                firebaseManager.updateBooking(key, booking, new FirebaseManager.OnTaskCompleteListener() {
+                firebaseManager.updateBooking(key, booking, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
                         showToast(requireContext(), message);

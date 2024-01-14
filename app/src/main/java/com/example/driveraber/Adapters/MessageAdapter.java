@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Message.MyMessage;
 import com.example.driveraber.R;
 
@@ -25,12 +25,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private List<MyMessage> messageList;
     private Bitmap leftAvatar;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
 
     public MessageAdapter(List<MyMessage> messageList, Bitmap bitmap) {
         this.messageList = messageList;
         this.leftAvatar = bitmap;
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
     }
 
     @SuppressLint("NotifyDataSetChanged")

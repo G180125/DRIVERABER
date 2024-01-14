@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.driveraber.Adapters.BookingResponseAdapter;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Staff.Driver;
@@ -31,7 +31,7 @@ import java.util.Objects;
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 public class MainHomeFragment extends Fragment implements BookingResponseAdapter.RecyclerViewClickListener{
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private List<BookingResponse> bookingResponseList;
     private BookingResponseAdapter adapter;
@@ -44,10 +44,10 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
         progressDialog = new ProgressDialog(requireContext());
         AndroidUtil.showLoadingDialog(progressDialog);
         View root = inflater.inflate(R.layout.fragment_main_home, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
 
         driverID = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
-        firebaseManager.getDriverByID(driverID, new FirebaseManager.OnFetchListener<Driver>() {
+        firebaseManager.getDriverByID(driverID, new FirebaseUtil.OnFetchListener<Driver>() {
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
@@ -59,7 +59,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
             }
         });
 
-        firebaseManager.fetchBookings(new FirebaseManager.OnFetchListListener<BookingResponse>() {
+        firebaseManager.fetchBookings(new FirebaseUtil.OnFetchListListener<BookingResponse>() {
             @Override
             public void onDataChanged(List<BookingResponse> object) {
                 bookingResponseList = object;
@@ -91,7 +91,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
         bookingResponse.getBooking().setUser(bookingResponse.getUserID());
         bookingResponse.getBooking().setStatus("Driver Accepted");
 
-        firebaseManager.getUserByID(bookingResponse.getUserID(), new FirebaseManager.OnFetchListener<User>() {
+        firebaseManager.getUserByID(bookingResponse.getUserID(), new FirebaseUtil.OnFetchListener<User>() {
             @Override
             public void onFetchSuccess(User object) {
                 String isAcceptable = driver.isAcceptable(bookingResponse.getBooking(), object.getGender());
@@ -113,7 +113,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
 
     private void acceptBooking(BookingResponse bookingResponse){
-        firebaseManager.getUserByID(bookingResponse.getUserID(), new FirebaseManager.OnFetchListener<User>() {
+        firebaseManager.getUserByID(bookingResponse.getUserID(), new FirebaseUtil.OnFetchListener<User>() {
             @Override
             public void onFetchSuccess(User object) {
                 user = object;
@@ -131,7 +131,9 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
         updateDriver(driver, bookingResponse);
 
-        firebaseManager.acceptBooking(bookingResponse.getId(), driverID, booking, new FirebaseManager.OnTaskCompleteListener() {
+        firebaseManager.activateUserSOS(bookingResponse.getUserID(), booking.getEmergencyContact());
+
+        firebaseManager.acceptBooking(bookingResponse.getId(), driverID, booking, new FirebaseUtil.OnTaskCompleteListener() {
             @Override
             public void onTaskSuccess(String message) {
                 showToast(requireContext(), message);
@@ -161,7 +163,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
         user.getChattedDriver().add(driver);
 
-        firebaseManager.updateUser(bookingResponse.getUserID(), user, new FirebaseManager.OnTaskCompleteListener() {
+        firebaseManager.updateUser(bookingResponse.getUserID(), user, new FirebaseUtil.OnTaskCompleteListener() {
             @Override
             public void onTaskSuccess(String message) {
 
@@ -190,7 +192,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
         }
 
 
-        firebaseManager.getUserByID(bookingResponse.getUserID(), new FirebaseManager.OnFetchListener<User>() {
+        firebaseManager.getUserByID(bookingResponse.getUserID(), new FirebaseUtil.OnFetchListener<User>() {
             @Override
             public void onFetchSuccess(User object) {
                 boolean found = false;
@@ -214,7 +216,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
                     driver.setChattedUser(userList);
                 }
 
-                firebaseManager.updateDriver(driver, new FirebaseManager.OnTaskCompleteListener() {
+                firebaseManager.updateDriver(driver, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
 

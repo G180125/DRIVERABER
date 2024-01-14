@@ -22,10 +22,11 @@ public class User {
     private List<Booking> bookings;
     private String stripeCusId;
     private List<Driver>  chattedDriver;
+    private String fcmToken;
 
     public User(){};
 
-    public User(String email, String name, Gender gender, String phoneNumber, List<Home> homes, List<Vehicle> vehicles, List<SOS> emergencyContacts) {
+    public User(String email, String name, Gender gender, String phoneNumber, List<Home> homes, List<Vehicle> vehicles, List<SOS> emergencyContacts, String stripeCusId) {
         this.email = email;
         this.name = name;
         this.gender = gender;
@@ -35,14 +36,13 @@ public class User {
         this.vehicles = vehicles;
         this.emergencyContacts = emergencyContacts;
         this.bookings = new ArrayList<>();
-        this.stripeCusId = "";
+        this.stripeCusId = stripeCusId;
         this.chattedDriver = new ArrayList<>();
-
+        this.fcmToken = "";
     }
 
     @NonNull
     public User clone() {
-
         User newUser = new User();
         newUser.setName(this.getName());
         newUser.setEmail(this.getEmail());
@@ -143,6 +143,33 @@ public class User {
         this.chattedDriver = chattedDriver;
     }
 
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(email, user.email) &&
+                Objects.equals(name, user.name) &&
+                gender == user.gender &&
+                Objects.equals(phoneNumber, user.phoneNumber) &&
+                Objects.equals(avatar, user.avatar) &&
+                Objects.equals(homes, user.homes) &&
+                Objects.equals(vehicles, user.vehicles) &&
+                Objects.equals(emergencyContacts, user.emergencyContacts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email, name, gender, phoneNumber, avatar, homes, vehicles, emergencyContacts);
+    }
     @Override
     public String toString() {
         return "User{" +

@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.Gender;
 import com.example.driveraber.R;
@@ -28,7 +28,7 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileEditFragment extends Fragment {
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private String driverID;
     private Driver driver;
@@ -45,10 +45,10 @@ public class ProfileEditFragment extends Fragment {
         AndroidUtil.showLoadingDialog(progressDialog);
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_profile_edit, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
 
         driverID = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
-        firebaseManager.getDriverByID(driverID, new FirebaseManager.OnFetchListener<Driver>() {
+        firebaseManager.getDriverByID(driverID, new FirebaseUtil.OnFetchListener<Driver>() {
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
@@ -88,7 +88,7 @@ public class ProfileEditFragment extends Fragment {
     }
 
     private void updateUI(Driver driver){
-        firebaseManager.retrieveImage(driver.getAvatar(), new FirebaseManager.OnRetrieveImageListener() {
+        firebaseManager.retrieveImage(driver.getAvatar(), new FirebaseUtil.OnRetrieveImageListener() {
             @Override
             public void onRetrieveImageSuccess(Bitmap bitmap) {
                 avatar.setImageBitmap(bitmap);

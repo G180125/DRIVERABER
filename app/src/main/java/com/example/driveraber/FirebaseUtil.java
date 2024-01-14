@@ -11,7 +11,12 @@ import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Message.MyMessage;
 import com.example.driveraber.Models.Staff.Driver;
+import com.example.driveraber.Models.User.SOS;
+import com.example.driveraber.Models.User.SOSActiveResponse;
 import com.example.driveraber.Models.User.User;
+import com.example.driveraber.Services.Notification.FCMApi;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -36,24 +42,40 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class FirebaseManager {
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+public class FirebaseUtil {
     public final String COLLECTION_USERS = "users";
     public final String COLLECTION_ADMINS = "admins";
     public final String COLLECTION_DRIVERS = "drivers";
     public final String COLLECTION_CHATS = "Chats";
     public final String COLLECTION_BOOKINGS = "Bookings";
+    public final String COLLECTION_SOS_ACTIVE = "SosActive";
     public FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private StorageReference storageRef;
     private FirebaseDatabase database;
+    public FirebaseMessaging messaging;
+    private FCMApi fcmApi;
     private String verificationCode;
     private PhoneAuthProvider.ForceResendingToken resendingToken;
 
-    public FirebaseManager() {
+
+    public FirebaseUtil() {
         mAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
         database = FirebaseDatabase.getInstance();
+
+        messaging = FirebaseMessaging.getInstance();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://fcm.googleapis.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        fcmApi = retrofit.create(FCMApi.class);
     }
 
     public void login(String email, String password, OnTaskCompleteListener listener){
@@ -105,6 +127,17 @@ public class FirebaseManager {
                         }
                     });
         }).start();
+    }
+
+    public void getFCMToken(OnFetchListener<String> listener){
+        this.messaging.getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if(task.isSuccessful()){
+                    listener.onFetchSuccess(task.getResult());
+                }
+            }
+        });
     }
 
     private void addDriver(String driverID, Driver driver, OnTaskCompleteListener listener){
@@ -345,6 +378,69 @@ public class FirebaseManager {
                         listener.onRetrieveImageFailure("Error: " + exception.getMessage());
                     });
         }).start();
+    }
+
+    public void activateUserSOS(String userID, SOS emergencyContact){
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("userID", userID);
+        hashMap.put("sos", emergencyContact);
+
+        this.database.getReference().child(COLLECTION_SOS_ACTIVE)
+                .push()
+                .setValue(hashMap);
+    }
+
+    private void deactivateUserSOS(String userID){
+        DatabaseReference reference =  this.database.getReference(COLLECTION_SOS_ACTIVE);
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot s: snapshot.getChildren()){
+                    SOSActiveResponse response = s.getValue(SOSActiveResponse.class);
+                    assert response != null;
+                    if(response.getUserID().equals(userID)){
+                        s.getRef().removeValue();
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void finishDriving(Booking booking, OnTaskCompleteListener listener) {
+        DatabaseReference reference = this.database.getReference(COLLECTION_BOOKINGS);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot s : snapshot.getChildren()) {
+                    BookingResponse bookingResponse = s.getValue(BookingResponse.class);
+                    if (bookingResponse != null) {
+                        bookingResponse.setId(s.getKey());
+
+                        if (bookingResponse.getBooking().getId().equals(booking.getId())) {
+                            String key = s.getKey();
+                            DatabaseReference bookingRef = database.getReference(COLLECTION_BOOKINGS).child(key).child("booking");
+
+                            bookingRef.setValue(booking);
+
+                            deactivateUserSOS(booking.getUser());
+
+                            listener.onTaskSuccess("Finish Driving");
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onTaskFailure(error.getMessage());
+            }
+        });
     }
 
     public void sendMessage(String sender, String receiver, String message){

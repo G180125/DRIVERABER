@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.driveraber.Adapters.MessageAdapter;
-import com.example.driveraber.FirebaseManager;
+import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Message.MyMessage;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.User;
@@ -34,7 +34,7 @@ public class ChatDetailFragment extends Fragment {
     private String userID, type, bookingID;
     private User currentUser;
     private Driver currentDriver;
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private TextView nameTextView;
     private ImageView backImageView;
@@ -52,7 +52,7 @@ public class ChatDetailFragment extends Fragment {
         AndroidUtil.showLoadingDialog(progressDialog);
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_chat_detail, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
         currentUser = new User();
         currentDriver = new Driver();
 
@@ -78,7 +78,7 @@ public class ChatDetailFragment extends Fragment {
         sendButton = root.findViewById(R.id.send_button);
 
         firebaseManager.readMessage(
-                Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid(), userID, new FirebaseManager.OnReadingMessageListener() {
+                Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid(), userID, new FirebaseUtil.OnReadingMessageListener() {
                     @Override
                     public void OnMessageDataChanged(List<MyMessage> messageList) {
                         updateMessageList(messageList);
@@ -120,7 +120,7 @@ public class ChatDetailFragment extends Fragment {
     }
 
     private void fetchUser(String id){
-        firebaseManager.getUserByID(id, new FirebaseManager.OnFetchListener<User>() {
+        firebaseManager.getUserByID(id, new FirebaseUtil.OnFetchListener<User>() {
             @Override
             public void onFetchSuccess(User user) {
                 currentUser = user;
@@ -137,7 +137,7 @@ public class ChatDetailFragment extends Fragment {
 
     private void updateUI(User user){
         if(!user.getAvatar().isEmpty()){
-            firebaseManager.retrieveImage(user.getAvatar(), new FirebaseManager.OnRetrieveImageListener() {
+            firebaseManager.retrieveImage(user.getAvatar(), new FirebaseUtil.OnRetrieveImageListener() {
                 @Override
                 public void onRetrieveImageSuccess(Bitmap bitmap) {
                     avatar.setImageBitmap(bitmap);

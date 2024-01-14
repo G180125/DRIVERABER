@@ -1,12 +1,10 @@
 package com.example.driveraber;
 
 import android.app.ProgressDialog;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -15,9 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.directions.route.AbstractRouting;
@@ -27,6 +24,8 @@ import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Staff.Driver;
+import com.example.driveraber.Models.User.User;
+import com.example.driveraber.Utils.AndroidUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
@@ -40,29 +39,27 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class DrivingFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener, RoutingListener {
-    private FirebaseManager firebaseManager;
+    private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
     private Booking booking;
     private String bookingID;
     private TextView pickUpTextView, destinationTextView, bookingDateTextView, bookingTimeTextView, etaTextView;
-    private ImageView backButton;
+    private ImageView expandButton;
+    private LinearLayout detail;
     private GoogleMap mMap;
     private double lat1, lng1, lat2, lng2;
     private LatLng start;
     private LatLng end;
     private List<Polyline> polylines;
-    private Button showRoute;
-
+    private Button doneButton;
     private boolean isUpdateUI;
+    private boolean expandState = false;
 
     public interface FirebaseDataCallback {
         void onDataLoaded();
@@ -90,12 +87,14 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
         };
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        progressDialog = new ProgressDialog(requireContext());
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_driving, container, false);
-        firebaseManager = new FirebaseManager();
+        firebaseManager = new FirebaseUtil();
         isUpdateUI = false;
 
         Bundle args = getArguments();
@@ -108,9 +107,12 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
         bookingDateTextView = root.findViewById(R.id.booking_date);
         bookingTimeTextView = root.findViewById(R.id.booking_time);
         etaTextView = root.findViewById(R.id.eta);
+        expandButton = root.findViewById(R.id.expand_icon);
+        detail = root.findViewById(R.id.detail);
+        doneButton = root.findViewById(R.id.done_button);
 
         String id = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
-        firebaseManager.getDriverByID(id, new FirebaseManager.OnFetchListener<Driver>() {
+        firebaseManager.getDriverByID(id, new FirebaseUtil.OnFetchListener<Driver>() {
             @Override
             public void onFetchSuccess(Driver object) {
                 for (Booking bookingInList : object.getBookings()) {
@@ -134,8 +136,112 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
             }
         });
 
+        expandButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expandState = ! expandState;
+
+                if (expandState) {
+                    expandButton.setImageResource(R.drawable.ic_arrow_down);
+                    detail.setVisibility(View.VISIBLE);
+                } else {
+                    expandButton.setImageResource(R.drawable.ic_arrow_up);
+                    detail.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AndroidUtil.showLoadingDialog(progressDialog);
+
+                updateUser(booking);
+                updateDriver(booking);
+
+                booking.setStatus("Done");
+                firebaseManager.finishDriving(booking, new FirebaseUtil.OnTaskCompleteListener() {
+                    @Override
+                    public void onTaskSuccess(String message) {
+                        AndroidUtil.showToast(requireContext(), message);
+                        AndroidUtil.hideLoadingDialog(progressDialog);
+                    }
+
+                    @Override
+                    public void onTaskFailure(String message) {
+                        AndroidUtil.showToast(requireContext(), message);
+                        AndroidUtil.hideLoadingDialog(progressDialog);
+                    }
+                });
+            }
+        });
+
         return root;
     }
+
+    private void updateUser(Booking booking){
+        firebaseManager.getUserByID(booking.getUser(), new FirebaseUtil.OnFetchListener<User>() {
+            @Override
+            public void onFetchSuccess(User object) {
+                for(Booking bookingInList : object.getBookings()){
+                    if(booking.getId().equals(bookingInList.getId())){
+                        bookingInList.setStatus("Done");
+
+                        firebaseManager.updateUser(booking.getUser(), object, new FirebaseUtil.OnTaskCompleteListener() {
+                            @Override
+                            public void onTaskSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onTaskFailure(String message) {
+
+                            }
+                        });;
+                    }
+                }
+
+
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
+            }
+        });
+    }
+
+    private void updateDriver(Booking booking){
+        firebaseManager.getDriverByID(booking.getDriver(), new FirebaseUtil.OnFetchListener<Driver>() {
+            @Override
+            public void onFetchSuccess(Driver object) {
+                for(Booking bookingInList : object.getBookings()){
+                    if(booking.getId().equals(bookingInList.getId())){
+                        bookingInList.setStatus("Done");
+
+                        firebaseManager.updateDriver(object, new FirebaseUtil.OnTaskCompleteListener() {
+                            @Override
+                            public void onTaskSuccess(String message) {
+
+                            }
+
+                            @Override
+                            public void onTaskFailure(String message) {
+                                // Handle failure if needed
+                            }
+                        });;
+                    }
+                }
+            }
+
+            @Override
+            public void onFetchFailure(String message) {
+
+            }
+        });
+    }
+
+
 
     private void updateUI(Booking booking) {
         pickUpTextView.setText(booking.getPickUp().getAddress());
