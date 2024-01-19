@@ -1,6 +1,7 @@
 package com.example.driveraber;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Message.MyMessage;
+import com.example.driveraber.Models.Notification.InAppNotification;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.SOS;
 import com.example.driveraber.Models.User.SOSActiveResponse;
@@ -52,6 +54,7 @@ public class FirebaseUtil {
     public final String COLLECTION_CHATS = "Chats";
     public final String COLLECTION_BOOKINGS = "Bookings";
     public final String COLLECTION_SOS_ACTIVE = "SosActive";
+    public final String COLLECTION_NOTIFICATION= "Notifications";
     public FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private StorageReference storageRef;
@@ -412,7 +415,7 @@ public class FirebaseUtil {
         });
     }
 
-    public void finishDriving(Booking booking, OnTaskCompleteListener listener) {
+    public void finishDriving(InAppNotification notification, Booking booking, OnTaskCompleteListener listener) {
         DatabaseReference reference = this.database.getReference(COLLECTION_BOOKINGS);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -429,6 +432,7 @@ public class FirebaseUtil {
                             bookingRef.setValue(booking);
 
                             deactivateUserSOS(booking.getUser());
+                            notification(notification);
 
                             listener.onTaskSuccess("Finish Driving");
                         }
@@ -505,10 +509,12 @@ public class FirebaseUtil {
         });
     }
 
-    public void acceptBooking(String key, String driverId, Booking booking, OnTaskCompleteListener listener) {
+    public void acceptBooking(InAppNotification notification, String key, String driverId, Booking booking, OnTaskCompleteListener listener) {
         DatabaseReference bookingRef = this.database.getReference(COLLECTION_BOOKINGS).child(key);
 
         bookingRef.child("booking").setValue(booking);
+
+        notification(notification);
 
         // Update the driverID for the specific booking
         bookingRef.child("driverID").setValue(driverId)
@@ -522,6 +528,15 @@ public class FirebaseUtil {
                     }
                 });
 
+    }
+
+    private void notification(InAppNotification notification){
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("notification", notification);
+
+        this.database.getReference().child(COLLECTION_NOTIFICATION)
+                .push()
+                .setValue(hashMap);
     }
 
     public void fetchBookingById(String bookingId, OnFetchListener<BookingResponse> listener) {
@@ -554,7 +569,9 @@ public class FirebaseUtil {
     }
 
 
-    public void updateBooking(String key, Booking booking, OnTaskCompleteListener listener){
+    public void updateBooking(InAppNotification notification, String key, Booking booking, OnTaskCompleteListener listener){
+        notification(notification);
+
         DatabaseReference bookingRef = this.database.getReference(COLLECTION_BOOKINGS).child(key);
 
         bookingRef.child("booking").setValue(booking)

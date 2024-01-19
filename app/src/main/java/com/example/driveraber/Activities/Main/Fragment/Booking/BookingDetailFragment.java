@@ -37,12 +37,16 @@ import com.example.driveraber.DrivingFragment;
 import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
+import com.example.driveraber.Models.Notification.InAppNotification;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.Gender;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -396,11 +400,11 @@ public class BookingDetailFragment extends Fragment {
                             booking.getPickUp().setPickUpImage(imagePath);
                             booking.setStatus("Picked Up");
 
+                            InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Pick Up Successful", booking.getUser(), driver.getName() + " has picked you up successfully. PLease enjoy your trip.");
+
                             updateUser(booking);
                             updateDriver(booking);
-                            updateBooking(booking);
-
-
+                            updateBooking(notification, booking);
                         }
 
                         @Override
@@ -520,13 +524,13 @@ public class BookingDetailFragment extends Fragment {
         });
     }
 
-    private void updateBooking(Booking booking){
+    private void updateBooking(InAppNotification notification, Booking booking){
         firebaseManager.fetchBookingById(bookingID, new FirebaseUtil.OnFetchListener<BookingResponse>() {
             @Override
             public void onFetchSuccess(BookingResponse object) {
                 // Handle the fetched booking response
                 String key = object.getId();
-                firebaseManager.updateBooking(key, booking, new FirebaseUtil.OnTaskCompleteListener() {
+                firebaseManager.updateBooking(notification, key, booking, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
                         showToast(requireContext(), message);
@@ -565,5 +569,18 @@ public class BookingDetailFragment extends Fragment {
         fragmentTransaction.replace(R.id.fragment_main_container, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    private static String getCurrentDateTimeFormatted() {
+        // Get the current date and time
+        Date currentDate = new Date();
+
+        // Define the desired date-time format
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+
+        // Format the current date and time
+        String formattedDateTime = formatter.format(currentDate);
+
+        return formattedDateTime;
     }
 }

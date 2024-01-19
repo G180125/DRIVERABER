@@ -23,6 +23,7 @@ import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.example.driveraber.Models.Booking.Booking;
+import com.example.driveraber.Models.Notification.InAppNotification;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.Utils.AndroidUtil;
@@ -40,8 +41,11 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class DrivingFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener, RoutingListener {
@@ -160,7 +164,10 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
                 updateDriver(booking);
 
                 booking.setStatus("Done");
-                firebaseManager.finishDriving(booking, new FirebaseUtil.OnTaskCompleteListener() {
+
+                InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Finish Driving", booking.getUser(), "Our driver has driven you home. For any extra help, please let us know.");
+
+                firebaseManager.finishDriving(notification, booking, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
                         AndroidUtil.showToast(requireContext(), message);
@@ -366,4 +373,17 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
             Findroutes(start, end);
         }
+
+    private static String getCurrentDateTimeFormatted() {
+        // Get the current date and time
+        Date currentDate = new Date();
+
+        // Define the desired date-time format
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+
+        // Format the current date and time
+        String formattedDateTime = formatter.format(currentDate);
+
+        return formattedDateTime;
+    }
     }

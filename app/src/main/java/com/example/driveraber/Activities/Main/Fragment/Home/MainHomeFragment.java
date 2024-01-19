@@ -5,6 +5,7 @@ import static com.example.driveraber.Utils.AndroidUtil.showLoadingDialog;
 import static com.example.driveraber.Utils.AndroidUtil.showToast;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
@@ -20,14 +21,19 @@ import com.example.driveraber.Adapters.BookingResponseAdapter;
 import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
+import com.example.driveraber.Models.Notification.InAppNotification;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 public class MainHomeFragment extends Fragment implements BookingResponseAdapter.RecyclerViewClickListener{
@@ -133,7 +139,9 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
         firebaseManager.activateUserSOS(bookingResponse.getUserID(), booking.getEmergencyContact());
 
-        firebaseManager.acceptBooking(bookingResponse.getId(), driverID, booking, new FirebaseUtil.OnTaskCompleteListener() {
+        InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Driver Accepted Your Booking", bookingResponse.getUserID(), driver.getName() + " has accept your booking. You can now view his profile and chat with the driver in the booking detail.");
+
+        firebaseManager.acceptBooking( notification, bookingResponse.getId(), driverID, booking, new FirebaseUtil.OnTaskCompleteListener() {
             @Override
             public void onTaskSuccess(String message) {
                 showToast(requireContext(), message);
@@ -238,5 +246,18 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
         String message = "Hi, my name is " + driver.getName() + ". I'll pick you up at " + bookingResponse.getBooking().getBookingTime() + ".";
         firebaseManager.sendMessage(driverID, bookingResponse.getUserID(), message);
 
+    }
+
+    private static String getCurrentDateTimeFormatted() {
+        // Get the current date and time
+        Date currentDate = new Date();
+
+        // Define the desired date-time format
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault());
+
+        // Format the current date and time
+        String formattedDateTime = formatter.format(currentDate);
+
+        return formattedDateTime;
     }
 }

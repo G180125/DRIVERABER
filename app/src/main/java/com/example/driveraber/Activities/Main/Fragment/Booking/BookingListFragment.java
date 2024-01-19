@@ -95,8 +95,8 @@ public class BookingListFragment extends Fragment implements BookingAdapter.Recy
 
                     setupDatePickerListener();
                 } else {
-                    datePicker.setVisibility(View.VISIBLE);
-                    selectedDateCardView.setVisibility(View.VISIBLE);
+                    datePicker.setVisibility(View.GONE);
+                    selectedDateCardView.setVisibility(View.GONE);
                 }
             }
         });
@@ -175,7 +175,7 @@ public class BookingListFragment extends Fragment implements BookingAdapter.Recy
                 Calendar selectedDate = Calendar.getInstance();
                 selectedDate.set(year, monthOfYear, dayOfMonth);
 
-                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 formattedDate = sdf.format(selectedDate.getTime());
 
                 selectedDateTextVew.setText(formattedDate);
