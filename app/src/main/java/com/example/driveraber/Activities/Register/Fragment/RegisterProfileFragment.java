@@ -20,10 +20,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
+import com.example.driveraber.Activities.LoginActivity;
 import com.example.driveraber.Activities.Register.Fragment.RegisterAccountFragment;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.R;
@@ -48,6 +50,7 @@ public class RegisterProfileFragment extends Fragment {
     private FirebaseManager firebaseManager;
     private ProgressDialog progressDialog;
     private Bitmap cropped;
+    private TextView loginButton;
     private final ActivityResultLauncher<Intent> getImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK) {
             Intent data = result.getData();
@@ -81,6 +84,7 @@ public class RegisterProfileFragment extends Fragment {
         phoneEditText = root.findViewById(R.id.phone_number_edit_text);
         licenseNumberEditText = root.findViewById(R.id.license_number_edit_text);
         nextButton = root.findViewById(R.id.next_button);
+        loginButton = root.findViewById(R.id.login_button);
 
         uploadAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,7 +99,7 @@ public class RegisterProfileFragment extends Fragment {
                 AndroidUtil.showLoadingDialog(progressDialog);
                 if(cropped == null){
                     AndroidUtil.hideLoadingDialog(progressDialog);
-                    AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
+                    AndroidUtil.showToast(requireContext(), "Please add an image.");
                     return;
                 }
 
@@ -121,6 +125,14 @@ public class RegisterProfileFragment extends Fragment {
                         AndroidUtil.showToast(requireContext(), message);
                     }
                 });
+            }
+        });
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(requireContext(), LoginActivity.class));
+                requireActivity().finish();
             }
         });
 

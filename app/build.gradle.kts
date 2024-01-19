@@ -53,6 +53,18 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth")
+
+    //Dot progress bar
+    implementation ("com.agrawalsuneet.androidlibs:dotsloader:1.4")
+
+    //View Page
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("com.tbuonomo:dotsindicator:5.0")
+
+    //Route
+    implementation("com.github.jd-alexander:library:1.1.0")
+    implementation("com.google.android.material:material:1.1.0")
+
 }
 
 secrets {

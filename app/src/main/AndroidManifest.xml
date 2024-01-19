@@ -26,8 +26,24 @@
         android:theme="@style/Theme.DRIVERABER"
         tools:targetApi="31">
         <activity
-            android:name=".Activities.Main.MainActivity"
+            android:name=".Activities.Main.Fragment.Profile.AboutUs.AboutUsActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
+        <activity
+            android:name=".Activities.Register.SplashActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activities.Main.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -41,13 +57,8 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
             android:name=".Activities.LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true" />
     </application>
 
 </manifest>

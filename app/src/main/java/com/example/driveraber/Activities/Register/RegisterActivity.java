@@ -5,12 +5,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.example.driveraber.R;
 import com.example.driveraber.Activities.Register.Fragment.RegisterProfileFragment;
 
 
 public class RegisterActivity extends AppCompatActivity {
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

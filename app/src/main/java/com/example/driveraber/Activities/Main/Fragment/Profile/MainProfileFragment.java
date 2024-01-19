@@ -1,5 +1,7 @@
 package com.example.driveraber.Activities.Main.Fragment.Profile;
 
+import static com.example.driveraber.Utils.AndroidUtil.replaceFragment;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.driveraber.Activities.LoginActivity;
+import com.example.driveraber.Activities.Main.Fragment.Profile.AboutUs.AboutUsActivity;
+import com.example.driveraber.Activities.Main.Fragment.Profile.Settings.ProfileSettingsFragment;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.Models.Staff.Driver;
 import com.example.driveraber.R;
@@ -31,7 +35,7 @@ public class MainProfileFragment extends Fragment {
     private ProgressDialog progressDialog;
     private CircleImageView avatar;
     private TextView nameTextView, emailTextView;
-    private CardView profileCardView, walletCardView, historyCardView, aboutUsCardView, helpCardView, logoutCardView;
+    private CardView profileCardView, walletCardView, settingsCardView, aboutUsCardView, helpCardView, logoutCardView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,7 +66,7 @@ public class MainProfileFragment extends Fragment {
         emailTextView = root.findViewById(R.id.email);
         profileCardView = root.findViewById(R.id.profile);
         walletCardView = root.findViewById(R.id.wallet);
-        historyCardView = root.findViewById(R.id.history);
+        settingsCardView = root.findViewById(R.id.settings);
         aboutUsCardView = root.findViewById(R.id.about_us);
         helpCardView = root.findViewById(R.id.help);
         logoutCardView = root.findViewById(R.id.logout);
@@ -72,7 +76,7 @@ public class MainProfileFragment extends Fragment {
             public void onClick(View v) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                AndroidUtil.replaceFragment(new ProfileEditFragment(), fragmentManager, fragmentTransaction, R.id.fragment_main_container);
+                replaceFragment(new ProfileEditFragment(), fragmentManager, fragmentTransaction, R.id.fragment_main_container);
             }
         });
 
@@ -83,16 +87,21 @@ public class MainProfileFragment extends Fragment {
             }
         });
 
-        historyCardView.setOnClickListener(new View.OnClickListener() {
+        settingsCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                replaceFragment(new ProfileSettingsFragment(),fragmentManager,fragmentTransaction,R.id.fragment_main_container);
                 AndroidUtil.showToast(requireContext(),"history card is clicked");
+
             }
         });
 
         aboutUsCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivity(new Intent(requireContext(), AboutUsActivity.class));
                 AndroidUtil.showToast(requireContext(),"about us card is clicked");
             }
         });
@@ -102,7 +111,7 @@ public class MainProfileFragment extends Fragment {
             public void onClick(View v) {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                AndroidUtil.replaceFragment(new ProfileHelpFragment(), fragmentManager, fragmentTransaction, R.id.fragment_main_container);
+                replaceFragment(new ProfileHelpFragment(), fragmentManager, fragmentTransaction, R.id.fragment_main_container);
             }
         });
 

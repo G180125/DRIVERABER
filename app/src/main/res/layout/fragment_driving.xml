@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DrivingFragment"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+    <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="8dp">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_arrow_back" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_marginRight="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Pick Up: "
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_marginRight="10dp"
+                        android:id="@+id/pick_up"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Pick Up"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Destination: "
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_marginRight="10dp"
+                        android:id="@+id/destination"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Destination"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Booking Date: "
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:id="@+id/booking_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Booking Date"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Booking Time: "
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:id="@+id/booking_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="Booking Time"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="ETA: "
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+
+                        android:layout_marginRight="10dp"
+                        android:id="@+id/eta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="8dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="ETA"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/done_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Done"
+                    android:layout_marginBottom="10dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+</RelativeLayout>
