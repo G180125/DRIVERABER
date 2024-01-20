@@ -1,22 +1,32 @@
 package com.example.driveraber.Activities.Main.Fragment.Home;
 
 import static com.example.driveraber.Utils.AndroidUtil.hideLoadingDialog;
+import static com.example.driveraber.Utils.AndroidUtil.replaceFragment;
 import static com.example.driveraber.Utils.AndroidUtil.showLoadingDialog;
 import static com.example.driveraber.Utils.AndroidUtil.showToast;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
+import com.example.driveraber.Activities.Main.Fragment.Profile.ProfileHelpFragment;
 import com.example.driveraber.Adapters.BookingResponseAdapter;
 import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
@@ -44,12 +54,14 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
     private User user;
     private Driver driver;
     private String driverID;
+    private PopupWindow popupWindow;
+    private View root;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         progressDialog = new ProgressDialog(requireContext());
         AndroidUtil.showLoadingDialog(progressDialog);
-        View root = inflater.inflate(R.layout.fragment_main_home, container, false);
+        root = inflater.inflate(R.layout.fragment_main_home, container, false);
         firebaseManager = new FirebaseUtil();
 
         driverID = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
@@ -57,11 +69,13 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
+                if(!driver.isPermission()){
+                    initPopupWindow(driver.getStatus());
+                }
             }
 
             @Override
             public void onFetchFailure(String message) {
-
             }
         });
 
@@ -114,6 +128,49 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
             }
         });
+
+    }
+
+    public void initPopupWindow(String status) {
+        LayoutInflater inflater = (LayoutInflater) requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.pop_up_dialog, null);
+
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        popupWindow.setTouchable(true);
+        // Set the background color with alpha transparency
+        popupView.setBackgroundColor(getResources().getColor(R.color.popup_background, null));
+
+        TextView titleTextVIew = popupView.findViewById(R.id.title);
+        TextView statusTextView = popupView.findViewById(R.id.status_text_view);
+        Button chatButton = popupView.findViewById(R.id.chat_button);
+        ImageView cancelBtn = popupView.findViewById(R.id.cancelBtn);
+
+        if(status.equals("Register Pending")){
+            titleTextVIew.setText(status);
+            statusTextView.setText("It takes up-to 3 working days to verify your account. You can chat with the admin for assistance.");
+        } else {
+            titleTextVIew.setText("You are banned");
+            statusTextView.setText("You are banned due to the reason: " + status +". You can chat with the admin for assistance.");
+        }
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+
+        chatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                replaceFragment(new ProfileHelpFragment(), fragmentManager, fragmentTransaction, R.id.fragment_main_container);
+                popupWindow.dismiss();
+            }
+        });
+
+        popupWindow.showAsDropDown(root, 0, 0);
 
     }
 
