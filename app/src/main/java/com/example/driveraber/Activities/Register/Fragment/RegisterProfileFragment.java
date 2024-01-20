@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -20,10 +21,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
+import com.example.driveraber.Activities.LoginActivity;
 import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
@@ -46,6 +49,7 @@ public class RegisterProfileFragment extends Fragment {
     private RadioGroup genderRadioGroup;
     private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
+    private TextView loginButton;
     private Bitmap cropped;
     private final ActivityResultLauncher<Intent> getImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK) {
@@ -69,6 +73,24 @@ public class RegisterProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_register_profile, container, false);
+        if (savedInstanceState != null) {
+            nameEditText.setText(savedInstanceState.getString("name"));
+            emailEditText.setText(savedInstanceState.getString("email"));
+            phoneEditText.setText(savedInstanceState.getString("phone"));
+            licenseNumberEditText.setText(savedInstanceState.getString("license"));
+
+            String savedGender = savedInstanceState.getString("gender");
+            if (savedGender != null) {
+                switch (savedGender) {
+                    case "MALE":
+                        genderRadioGroup.check(R.id.radioButtonMale);
+                        break;
+                    case "FEMALE":
+                        genderRadioGroup.check(R.id.radioButtonFemale);
+                        break;
+                }
+            }
+        }
         firebaseManager = new FirebaseUtil();
         progressDialog = new ProgressDialog(requireContext());
 
@@ -81,6 +103,15 @@ public class RegisterProfileFragment extends Fragment {
         licenseNumberEditText = root.findViewById(R.id.license_number_edit_text);
         nextButton = root.findViewById(R.id.next_button);
         setErrorEditText = root.findViewById(R.id.setErrorEditText);
+        loginButton = root.findViewById(R.id.login_button);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(requireContext(), LoginActivity.class));
+                requireActivity().finish();
+            }
+        });
 
         uploadAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,7 +126,7 @@ public class RegisterProfileFragment extends Fragment {
                 AndroidUtil.showLoadingDialog(progressDialog);
                 if(cropped == null){
                     AndroidUtil.hideLoadingDialog(progressDialog);
-                    AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
+                    AndroidUtil.showToast(requireContext(), getString(R.string.please_upload_an_image));
                     return;
                 }
 
@@ -126,6 +157,17 @@ public class RegisterProfileFragment extends Fragment {
 
         return root;
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("name", nameEditText.getText().toString());
+        outState.putString("email", emailEditText.getText().toString());
+        outState.putString("gender", getSelectedGender());
+        outState.putString("phone", phoneEditText.getText().toString());
+        outState.putString("license", licenseNumberEditText.getText().toString());
+    }
+
 
     private void launchImageCropper(Uri uri) {
         CropImageOptions cropImageOptions = new CropImageOptions();
@@ -201,10 +243,25 @@ public class RegisterProfileFragment extends Fragment {
 
     private boolean validatePhoneNumber(String phoneNumber) {
         phoneNumber = phoneNumber.replaceAll("\\s", "");
-
-        if (phoneNumber.matches("\\d{9}")) {
-            return true;
+        if (phoneNumber !=null){
+            if (phoneNumber.matches("\\d{9}")) {
+                return true;
+            }
+            if (phoneNumber.matches("^\\+?84\\d{9}$")) {
+                return true;
+            }
         }
+
+//        if (phoneNumber.matches("\\d{9}")) {
+//            return true;
+//        }
+//
+////        if (phoneNumber.matches("84\\d{9}")) {
+////            return true;
+////        }
+//        if (phoneNumber.matches("^\\+?84\\d{9}$")) {
+//            return true;
+//        }
 
         return false;
     }

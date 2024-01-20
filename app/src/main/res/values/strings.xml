@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">ABER</string>
-<!--        <string name="GOOGLE_MAP_API">AIzaSyCYwy04EO7319zgEWLcfu7mxItQdPZM8Dw</string>-->
-<!--    <string name="GOOGLE_MAP_API">AIzaSyAk79eOlfksqlm74wCmRbY_yddK75iZ4dM</string>-->
-    <string name="GOOGLE_MAP_API">AIzaSyAidfRtw8HndHnINVhAsfYUAFP_id3QW_U</string>
-
+    <!--    <string name="GOOGLE_MAP_API">AIzaSyCYwy04EO7319zgEWLcfu7mxItQdPZM8Dw</string>-->
+    <string name="GOOGLE_MAP_API">AIzaSyAk79eOlfksqlm74wCmRbY_yddK75iZ4dM</string>
 
     <!-- Login , SignUp    -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -14,6 +12,7 @@
     <string name="login">Login</string>
     <string name="forgot_your_password">Forget password ?</string>
     <string name="create_new_account">Create new account</string>
+    <string name="or_continue_with">Or </string>
 
     <!-- Profile edit    -->
     <string name="logout">Logout</string>
@@ -54,6 +53,7 @@
     <string name="vehicle_heading">Please enter your vehicle detail. \nYou can edit this in the app later.</string>
     <string name="Sos_heading">Enter an Emergency Contact. \nYou can share your live location and Driver Detail when you initiate the SOS action. \nYou can skip this for now and edit it in the app later.</string>
     <string name="settings">Settings</string>
+    <string name="enter_password">Enter Password</string>
 
     <!-- Profile Settings    -->
     <string name="Language">Language</string>
@@ -65,6 +65,8 @@
 
     <!-- Profile Page    -->
     <string name="about_us">About Us</string>
+    <string name="license_number">License Number</string>
+    <string name="total_drive">Total Drive</string>
 
 
     <!-- About Us Page    -->
@@ -78,7 +80,9 @@
     <string name="edit">Edit</string>
     <string name="english">English</string>
     <string name="Vietnamese">Tiếng Việt</string>
-
+    <string name="upload_avatar">Upload Avatar</string>
+    <string name="account_heading">Please enter your password to create your account.</string>
+    <string name="please_upload_an_image">Please upload an image.</string>
 
 
 </resources>

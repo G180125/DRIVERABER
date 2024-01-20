@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.driveraber.Activities.LoginActivity;
@@ -28,12 +29,12 @@ import java.util.Locale;
 
 public class RegisterAccountFragment extends Fragment {
     private Driver driver;
-    private TextView emailTextView;
-    private EditText passwordEditText, confirmPasswordEditText;
+    private EditText passwordEditText, confirmPasswordEditText,emailTextView;
     private Button registerButton;
     private String name, email, phoneNumber, gender, licenseNumber, avatar;
     private FirebaseUtil firebaseManager;
     private ProgressDialog progressDialog;
+    private ImageView buttonBack;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,6 +43,7 @@ public class RegisterAccountFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_register_account, container, false);
         firebaseManager = new FirebaseUtil();
         progressDialog = new ProgressDialog(requireContext());
+
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -60,6 +62,13 @@ public class RegisterAccountFragment extends Fragment {
         registerButton = root.findViewById(R.id.register_button);
 
         emailTextView.setText(email);
+        buttonBack = root.findViewById(R.id.button_back);
+        buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
