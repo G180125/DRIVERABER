@@ -57,6 +57,9 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             paymentTextView = itemView.findViewById(R.id.payment);
             viewButton = itemView.findViewById(R.id.accept_button);
 
+            destinationTextView.setSelected(true);
+            pickUpTextView.setSelected(true);
+
             viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

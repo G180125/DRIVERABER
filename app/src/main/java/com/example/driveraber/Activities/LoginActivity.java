@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private LinearLayout loginBackground;
 
     private Spinner spinnerLanguage;
-    public static final String[] languages = {"Language","English","Tiếng Việt"};
+    public static final String[] languages = {"Language", "English","Tiếng Việt"};
 
     Dialog dialog;
     private ProgressDialog progressDialog;
@@ -86,6 +86,8 @@ public class LoginActivity extends AppCompatActivity {
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLanguage.setAdapter(arrayAdapter);
         spinnerLanguage.setSelection(0);
+        int verticalOffsetPixels = getResources().getDimensionPixelOffset(R.dimen.dropdown_offset);
+        spinnerLanguage.setDropDownVerticalOffset(verticalOffsetPixels);;
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

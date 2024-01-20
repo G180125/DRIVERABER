@@ -45,7 +45,7 @@ public class RegisterProfileFragment extends Fragment {
     private final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private CircleImageView avatar;
     private Button uploadAvatarButton, nextButton;
-    private EditText nameEditText, emailEditText, phoneEditText, licenseNumberEditText;
+    private EditText nameEditText, emailEditText, phoneEditText, licenseNumberEditText, setErrorGenderEditText;
     private RadioGroup genderRadioGroup;
     private FirebaseManager firebaseManager;
     private ProgressDialog progressDialog;
@@ -78,6 +78,7 @@ public class RegisterProfileFragment extends Fragment {
 
         avatar = root.findViewById(R.id.avatar);
         uploadAvatarButton = root.findViewById(R.id.upload_avatar_button);
+        setErrorGenderEditText = root.findViewById(R.id.setErrorGenderEditText);
         nameEditText = root.findViewById(R.id.name_edit_text);
         emailEditText = root.findViewById(R.id.email_edit_text);
         genderRadioGroup = root.findViewById(R.id.radioGroupGender);
@@ -179,22 +180,28 @@ public class RegisterProfileFragment extends Fragment {
     private boolean validateInputs(String name, String email, String phoneNumber, String gender, String licenseNumber){
         if(name.isEmpty()){
             AndroidUtil.showToast(requireContext(), "Name can not be empty.");
+            nameEditText.setError("Name cannot be empty");
             return false;
         }
         if (!isValidEmail(email)){
             AndroidUtil.showToast(requireContext(), "Email is invalid.");
+            emailEditText.setError("Email is invalid");
             return false;
         }
         if(!validatePhoneNumber(phoneNumber)) {
             AndroidUtil.showToast(requireContext(), "Phone is invalid.");
+            phoneEditText.setError("Phone is invalid");
             return false;
         }
         if (gender == null) {
+            setErrorGenderEditText.setError("Gender must cannot be empty");
             AndroidUtil.showToast(requireContext(), "Gender can not be empty");
+
             return false;
         }
         if(!validateLicenseNumber(licenseNumber)) {
             AndroidUtil.showToast(requireContext(), "License is invalid.");
+            licenseNumberEditText.setError("License is invalid");
             return false;
         }
 

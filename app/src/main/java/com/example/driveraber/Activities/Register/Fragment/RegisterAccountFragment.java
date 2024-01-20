@@ -73,6 +73,8 @@ public class RegisterAccountFragment extends Fragment {
                 String password = passwordEditText.getText().toString();
                 String confirmPassword = confirmPasswordEditText.getText().toString();
                 if(!password.equals(confirmPassword)){
+                    passwordEditText.setError("Password does not match");
+                    confirmPasswordEditText.setError("Password does not match");
                     AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
                 } else {
                     //toRegisterOTPFragment(name, email, phoneNumber, gender, licenseNumber, avatar, password);
