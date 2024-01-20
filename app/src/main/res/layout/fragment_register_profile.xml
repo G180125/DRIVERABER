@@ -110,7 +110,7 @@
 
                 <RadioGroup
                     android:id="@+id/radioGroupGender"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginHorizontal="16dp"
@@ -133,6 +133,15 @@
 
 
                 </RadioGroup>
+                <EditText
+                    android:id="@+id/setErrorEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:padding="6dp"
+                    android:background="@drawable/custom_edit_text_2">
+
+                </EditText>
             </LinearLayout>
 
             <TextView

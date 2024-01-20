@@ -57,8 +57,8 @@ public class BookingDetailFragment extends Fragment {
     private ProgressDialog progressDialog;
     private Driver driver;
     private Booking booking;
-    private String bookingID, userId, imagePath;
-    private TextView pickUpTextView, destinationTextView, bookingDateTextView, bookingTimeTextView, etaTextView, statusTextView, brandTextView, vehicleNameTextView, colorTextView, seatTextView, plateTextView, amountTextView, methodTextView, userNameTextView, userGenderTextView, phoneNumberTextView, realPickUpTimeTextView;
+    private String bookingID, userId, imagePath, realPickUpTime;
+    private TextView pickUpTextView, destinationTextView, bookingDateTextView, bookingTimeTextView, etaTextView, statusTextView, brandTextView, vehicleNameTextView, colorTextView, seatTextView, plateTextView, amountTextView, methodTextView, userNameTextView, userGenderTextView, phoneNumberTextView, realPickUpTimeTextView, realPickUpTimeInPopUpTextView;
     private CircleImageView avatar;
     private ImageView backButton, imageView, vehicleExpand, paymentExpand, driverExpand, resourceExpand, pickUpImageView;
     private CardView vehicleCardView, paymentCardView, driverCardView, resourceCardView;
@@ -67,7 +67,6 @@ public class BookingDetailFragment extends Fragment {
     private Bitmap cropped;
     private PopupWindow popupWindow;
     private View root;
-    private TimePicker timePicker;
 
     private final ActivityResultLauncher<Intent> getImage = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK) {
@@ -84,6 +83,7 @@ public class BookingDetailFragment extends Fragment {
             cropped = BitmapFactory.decodeFile(result.getUriFilePath(requireContext(), true));
             imageView.setImageBitmap(cropped);
             pickUpImageView.setImageBitmap(cropped);
+            realPickUpTimeInPopUpTextView.setText(getCurrentDateTimeFormatted());
         }
     });
     @Override
@@ -366,10 +366,10 @@ public class BookingDetailFragment extends Fragment {
         popupView.setBackgroundColor(getResources().getColor(R.color.popup_background, null));
 
         pickUpImageView = popupView.findViewById(R.id.image);
-        timePicker = popupView.findViewById(R.id.time_picker);
+
         Button submitButton = popupView.findViewById(R.id.submitNewAddressBtn);
         ImageView cancelBtn = popupView.findViewById(R.id.cancelBtn);
-
+        realPickUpTimeInPopUpTextView = popupView.findViewById(R.id.pick_up_time_text_view);
 
         pickUpImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -389,7 +389,7 @@ public class BookingDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 showLoadingDialog(progressDialog);
-                String realPickUpTime = getTimeFromPicker();
+                realPickUpTime = realPickUpTimeInPopUpTextView.getText().toString();
                 if (cropped != null && !realPickUpTime.isEmpty()) {
                     imagePath = STORAGE_PATH + generateUniquePath() + ".jpg";
                     firebaseManager.uploadImage(cropped, imagePath, new FirebaseUtil.OnTaskCompleteListener() {
@@ -400,7 +400,7 @@ public class BookingDetailFragment extends Fragment {
                             booking.getPickUp().setPickUpImage(imagePath);
                             booking.setStatus("Picked Up");
 
-                            InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Pick Up Successful", booking.getUser(), driver.getName() + " has picked you up successfully. PLease enjoy your trip.", bookingID);
+                            InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Pick Up Successful", booking.getUser(), driver.getName() + " has picked you up successfully. Please enjoy your trip.", bookingID);
 
                             updateUser(booking);
                             updateDriver(booking);
@@ -447,28 +447,6 @@ public class BookingDetailFragment extends Fragment {
         return String.valueOf(System.currentTimeMillis());
     }
 
-    @SuppressLint("DefaultLocale")
-    private String getTimeFromPicker() {
-        int hour, minute;
-
-        hour = timePicker.getHour();
-        minute = timePicker.getMinute();
-
-        String amPm;
-
-        if (hour >= 12) {
-            amPm = "PM";
-            if (hour > 12) {
-                hour -= 12;
-            }
-        } else {
-            amPm = "AM";
-            if (hour == 0) {
-                hour = 12;
-            }
-        }
-        return String.format("%02d:%02d %s", hour, minute, amPm);
-    }
 
     private void updateUser(Booking booking){
         firebaseManager.getUserByID(booking.getUser(), new FirebaseUtil.OnFetchListener<User>() {

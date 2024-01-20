@@ -65,7 +65,7 @@ public class MainProfileFragment extends Fragment {
         nameTextView = root.findViewById(R.id.name);
         emailTextView = root.findViewById(R.id.email);
         profileCardView = root.findViewById(R.id.profile);
-        walletCardView = root.findViewById(R.id.wallet);
+
         settingsCardView = root.findViewById(R.id.settings);
         aboutUsCardView = root.findViewById(R.id.about_us);
         helpCardView = root.findViewById(R.id.help);
@@ -80,12 +80,7 @@ public class MainProfileFragment extends Fragment {
             }
         });
 
-        walletCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AndroidUtil.showToast(requireContext(),"wallet card is clicked");
-            }
-        });
+
 
         settingsCardView.setOnClickListener(new View.OnClickListener() {
             @Override

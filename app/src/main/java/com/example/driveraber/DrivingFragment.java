@@ -248,14 +248,14 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
         });
     }
 
-
-
     private void updateUI(Booking booking) {
         pickUpTextView.setText(booking.getPickUp().getAddress());
         destinationTextView.setText(booking.getDestination().getAddress());
         bookingDateTextView.setText(booking.getBookingDate());
         bookingTimeTextView.setText(booking.getBookingTime());
         etaTextView.setText(booking.getETA());
+        pickUpTextView.setSelected(true);
+        destinationTextView.setSelected(true);
         isUpdateUI = true;
     }
 

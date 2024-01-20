@@ -46,16 +46,19 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     }
 
     public class BookingViewHolder extends RecyclerView.ViewHolder{
-        TextView pickUpTextView, destinationTextView, bookingTimeTextView, vehicleTextView, paymentTextView;
+        TextView pickUpTextView, destinationTextView, bookingTimeTextView, vehicleTextView, paymentTextView, bookingDateTextView;
         Button viewButton;
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
             pickUpTextView = itemView.findViewById(R.id.pick_up);
             destinationTextView = itemView.findViewById(R.id.destination);
             bookingTimeTextView = itemView.findViewById(R.id.booking_time);
+            bookingDateTextView = itemView.findViewById(R.id.booking_date);
             vehicleTextView = itemView.findViewById(R.id.vehicle);
             paymentTextView = itemView.findViewById(R.id.payment);
             viewButton = itemView.findViewById(R.id.accept_button);
+            pickUpTextView.setSelected(true);
+            destinationTextView.setSelected(true);
 
             viewButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -70,6 +73,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             pickUpTextView.setText(booking.getPickUp().getAddress());
             destinationTextView.setText(booking.getDestination().getAddress());
             bookingTimeTextView.setText(booking.getBookingTime());
+            bookingDateTextView.setText(booking.getBookingDate());
             vehicleTextView.setText(booking.getVehicle().getNumberPlate());
             double paymentAmount = booking.getPayment().getAmount();
             String roundedPayment = String.format("%.0f", paymentAmount); // Rounds to 0 decimal places

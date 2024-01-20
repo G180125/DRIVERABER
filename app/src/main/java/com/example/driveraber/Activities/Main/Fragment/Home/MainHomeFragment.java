@@ -107,6 +107,12 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
     @Override
     public void onAcceptButtonClick(int position) {
         showLoadingDialog(progressDialog);
+        if(!driver.isPermission()){
+            showToast(requireContext(), "You are currently don't have the permission to accept the booking.");
+            hideLoadingDialog(progressDialog);
+            return;
+        }
+
         BookingResponse bookingResponse = bookingResponseList.get(position);
         bookingResponse.getBooking().setDriver(driverID);
         bookingResponse.getBooking().setUser(bookingResponse.getUserID());

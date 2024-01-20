@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class RegisterAccountFragment extends Fragment {
     private Driver driver;
-    private TextView phoneNumberTextView;
+    private TextView emailTextView;
     private EditText passwordEditText, confirmPasswordEditText;
     private Button registerButton;
     private String name, email, phoneNumber, gender, licenseNumber, avatar;
@@ -54,12 +54,12 @@ public class RegisterAccountFragment extends Fragment {
             avatar = bundle.getString("avatar", "");
         }
 
-        phoneNumberTextView = root.findViewById(R.id.phone_text_view);
+        emailTextView = root.findViewById(R.id.email);
         passwordEditText = root.findViewById(R.id.password_edit_text);
         confirmPasswordEditText = root.findViewById(R.id.confirm_password_edit_text);
         registerButton = root.findViewById(R.id.register_button);
 
-        phoneNumberTextView.setText(phoneNumber);
+        emailTextView.setText(email);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +68,8 @@ public class RegisterAccountFragment extends Fragment {
                 String password = passwordEditText.getText().toString();
                 String confirmPassword = confirmPasswordEditText.getText().toString();
                 if(!password.equals(confirmPassword)){
+                    passwordEditText.setError("Password are not matched");
+                    confirmPasswordEditText.setError("Password are not matched");
                     AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
                 } else {
                     //toRegisterOTPFragment(name, email, phoneNumber, gender, licenseNumber, avatar, password);
