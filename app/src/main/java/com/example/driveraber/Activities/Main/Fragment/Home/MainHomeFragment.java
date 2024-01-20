@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,7 +140,7 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
         firebaseManager.activateUserSOS(bookingResponse.getUserID(), booking.getEmergencyContact());
 
-        InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Driver Accepted Your Booking", bookingResponse.getUserID(), driver.getName() + " has accept your booking. You can now view his profile and chat with the driver in the booking detail.");
+        InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Driver Accepted Your Booking", bookingResponse.getUserID(), driver.getName() + " has accept your booking. You can now view his profile and chat with the driver in the booking detail.", bookingResponse.getBooking().getId());
 
         firebaseManager.acceptBooking( notification, bookingResponse.getId(), driverID, booking, new FirebaseUtil.OnTaskCompleteListener() {
             @Override

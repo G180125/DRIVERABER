@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Driver extends Staff{
     private String name;
@@ -201,13 +202,18 @@ public class Driver extends Staff{
     }
 
     private boolean hasScheduleConflict(Schedule newBookingSchedule) {
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", java.util.Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
         try {
             Date newBookingStartTime = sdf.parse(newBookingSchedule.getStartTime());
             Date newBookingEndTime = sdf.parse(newBookingSchedule.getEndTIme());
 
             for (Schedule existingSchedule : scheduleList) {
+                // Check if the schedules are on the same date
+                if (!newBookingSchedule.getDate().equals(existingSchedule.getDate())) {
+                    continue; // Skip to the next existing schedule
+                }
+
                 Date existingStartTime = sdf.parse(existingSchedule.getStartTime());
                 Date existingEndTime = sdf.parse(existingSchedule.getEndTIme());
 
@@ -221,4 +227,5 @@ public class Driver extends Staff{
 
         return false; // No conflict
     }
+
 }

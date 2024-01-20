@@ -165,7 +165,7 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
 
                 booking.setStatus("Done");
 
-                InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Finish Driving", booking.getUser(), "Our driver has driven you home. For any extra help, please let us know.");
+                InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Finish Driving", booking.getUser(), "Our driver has driven you home. For any extra help, please let us know.", bookingID);
 
                 firebaseManager.finishDriving(notification, booking, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override

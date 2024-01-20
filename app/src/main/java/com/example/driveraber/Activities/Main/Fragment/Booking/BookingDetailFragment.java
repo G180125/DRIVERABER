@@ -400,7 +400,7 @@ public class BookingDetailFragment extends Fragment {
                             booking.getPickUp().setPickUpImage(imagePath);
                             booking.setStatus("Picked Up");
 
-                            InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Pick Up Successful", booking.getUser(), driver.getName() + " has picked you up successfully. PLease enjoy your trip.");
+                            InAppNotification notification = new InAppNotification(getCurrentDateTimeFormatted(), "Pick Up Successful", booking.getUser(), driver.getName() + " has picked you up successfully. PLease enjoy your trip.", bookingID);
 
                             updateUser(booking);
                             updateDriver(booking);
