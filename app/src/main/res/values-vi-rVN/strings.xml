@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ABER</string>
+    <string name="app_name">DRIVERABER</string>
     <!--    <string name="GOOGLE_MAP_API">AIzaSyCYwy04EO7319zgEWLcfu7mxItQdPZM8Dw</string>-->
     <string name="GOOGLE_MAP_API">AIzaSyAk79eOlfksqlm74wCmRbY_yddK75iZ4dM</string>
 
@@ -94,6 +94,7 @@
     <string name="password_is_empty">Password is empty</string>
     <string name="login_successfully">Đăng nhập thành công</string>
     <string name="new_booking">Booking Mới</string>
+    <string name="accept">Chấp Nhận</string>
 
 
 </resources>

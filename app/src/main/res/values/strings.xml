@@ -91,6 +91,7 @@
     <string name="password_is_empty">Password is empty</string>
     <string name="login_successfully">Login Successfully</string>
     <string name="new_booking">New Booking</string>
+    <string name="accept">Accept</string>
 
 
 </resources>
