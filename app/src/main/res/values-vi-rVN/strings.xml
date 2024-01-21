@@ -95,6 +95,7 @@
     <string name="login_successfully">Đăng nhập thành công</string>
     <string name="new_booking">Booking Mới</string>
     <string name="accept">Chấp Nhận</string>
+    <string name="status">Status</string>
 
 
 </resources>

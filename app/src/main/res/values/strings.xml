@@ -92,6 +92,7 @@
     <string name="login_successfully">Login Successfully</string>
     <string name="new_booking">New Booking</string>
     <string name="accept">Accept</string>
+    <string name="status">Status</string>
 
 
 </resources>
