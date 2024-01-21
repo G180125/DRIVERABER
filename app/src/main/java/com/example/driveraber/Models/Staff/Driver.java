@@ -26,6 +26,7 @@ public class Driver extends Staff{
     private List<Booking> bookings;
     private List<User> chattedUser;
     private List<Schedule> scheduleList;
+    private boolean isAcceptPolicy;
 
     public Driver(){};
 
@@ -46,6 +47,7 @@ public class Driver extends Staff{
         this.bookings = new ArrayList<>();
         this.chattedUser = new ArrayList<>();
         this.scheduleList = new ArrayList<>();
+        this.isAcceptPolicy = false;
     }
 
     public String getName() {
@@ -165,6 +167,14 @@ public class Driver extends Staff{
 
     public void setScheduleList(List<Schedule> scheduleList) {
         this.scheduleList = scheduleList;
+    }
+
+    public boolean isAcceptPolicy() {
+        return isAcceptPolicy;
+    }
+
+    public void setAcceptPolicy(boolean acceptPolicy) {
+        isAcceptPolicy = acceptPolicy;
     }
 
     public String isAcceptable(Booking booking, Gender gender){

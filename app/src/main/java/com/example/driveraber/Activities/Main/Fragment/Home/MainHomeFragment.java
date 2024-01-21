@@ -6,6 +6,7 @@ import static com.example.driveraber.Utils.AndroidUtil.showToast;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -15,12 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.PopupWindow;
 
 import com.example.driveraber.Adapters.BookingResponseAdapter;
+import com.example.driveraber.Adapters.PolicyAdapter;
 import com.example.driveraber.FirebaseManager;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Staff.Driver;
+import com.example.driveraber.Models.Staff.DriverPolicy;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
@@ -39,11 +45,16 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
     private Driver driver;
     private String driverID;
 
+    public PopupWindow policyPopUp;
+    private DriverPolicy driverPolicy;
+    private PolicyAdapter documentPolicyAdapter, respectPolicyAdapter, lawPolicyAdapter, vehiclePolicyAdapter, practicePolicyAdapter;
+    private View root;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         progressDialog = new ProgressDialog(requireContext());
         AndroidUtil.showLoadingDialog(progressDialog);
-        View root = inflater.inflate(R.layout.fragment_main_home, container, false);
+        root = inflater.inflate(R.layout.fragment_main_home, container, false);
         firebaseManager = new FirebaseManager();
 
         driverID = Objects.requireNonNull(firebaseManager.mAuth.getCurrentUser()).getUid();
@@ -51,6 +62,22 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
+                if(!driver.isAcceptPolicy()){
+                    firebaseManager.fetchDriverPolicy("u0SkgoA4j5YboEVkP4qXQWIXFrY2", new FirebaseManager.OnFetchListener<DriverPolicy>() {
+                        @Override
+                        public void onFetchSuccess(DriverPolicy object) {
+                            driverPolicy = object;
+                            initPopupWindowPolicy();
+                        }
+
+                        @Override
+                        public void onFetchFailure(String message) {
+
+                        }
+                    });
+                }
+
+
             }
 
             @Override
@@ -237,4 +264,76 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
         firebaseManager.sendMessage(driverID, bookingResponse.getUserID(), message);
 
     }
+
+    public void initPopupWindowPolicy() {
+        AndroidUtil.showLoadingDialog(progressDialog);
+        LayoutInflater inflater = (LayoutInflater) requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.policy, null);
+
+        policyPopUp = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        policyPopUp.setTouchable(true);
+        // Set the background color with alpha transparency
+        popupView.setBackgroundColor(getResources().getColor(R.color.white, null));
+
+        CheckBox checkBox = popupView.findViewById(R.id.checkbox);
+        Button confirmButton = popupView.findViewById(R.id.confirm_button);
+
+        RecyclerView respectRecyclerView = popupView.findViewById(R.id.respectRecyclerView);
+        respectRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        respectPolicyAdapter = new PolicyAdapter(driverPolicy.getRespect());
+        respectRecyclerView.setAdapter(respectPolicyAdapter);
+
+        RecyclerView documentRecyclerView = popupView.findViewById(R.id.documentRecyclerView);
+        documentRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        documentPolicyAdapter = new PolicyAdapter(driverPolicy.getDocuments());
+        documentRecyclerView.setAdapter(documentPolicyAdapter);
+
+        RecyclerView lawRecyclerView = popupView.findViewById(R.id.lawRecyclerView);
+        lawRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        lawPolicyAdapter = new PolicyAdapter(driverPolicy.getLaw());
+        lawRecyclerView.setAdapter(lawPolicyAdapter);
+
+        RecyclerView vehicleRecyclerView = popupView.findViewById(R.id.vehicleRecyclerView);
+        vehicleRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        vehiclePolicyAdapter = new PolicyAdapter(driverPolicy.getVehicle());
+        vehicleRecyclerView.setAdapter(vehiclePolicyAdapter);
+
+        RecyclerView practiceRecyclerView = popupView.findViewById(R.id.practiceRecyclerView);
+        practiceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        practicePolicyAdapter = new PolicyAdapter(driverPolicy.getPractice());
+        practiceRecyclerView.setAdapter(practicePolicyAdapter);
+
+        AndroidUtil.hideLoadingDialog(progressDialog);
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!checkBox.isChecked()){
+                    showToast(requireContext(), "You haven't checked");
+                    return;
+                }
+
+                driver.setAcceptPolicy(true);
+
+                firebaseManager.updateDriver(driver, new FirebaseManager.OnTaskCompleteListener() {
+                    @Override
+                    public void onTaskSuccess(String message) {
+                        policyPopUp.dismiss();
+                    }
+
+                    @Override
+                    public void onTaskFailure(String message) {
+                        showToast(requireContext(), message);
+                    }
+                });
+            }
+        });
+
+        policyPopUp.showAsDropDown(root, 0, 0);
+    }
+
+    private void checkAvatar(String uploadDate){
+
+    }
+
 }
