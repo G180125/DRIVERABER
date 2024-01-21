@@ -170,6 +170,7 @@ public class User {
     public int hashCode() {
         return Objects.hash(email, name, gender, phoneNumber, avatar, homes, vehicles, emergencyContacts);
     }
+
     @Override
     public String toString() {
         return "User{" +
@@ -178,13 +179,11 @@ public class User {
                 ", gender=" + gender +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", avatar='" + avatar + '\'' +
-                ", homes=" + homes +
-                ", vehicles=" + vehicles +
+                ", home=" + homes +
+                ", vehicle=" + vehicles +
                 ", emergencyContacts=" + emergencyContacts +
-                ", bookings=" + bookings +
-                ", stripeCusId='" + stripeCusId + '\'' +
-                ", chattedDriver=" + chattedDriver +
                 '}';
     }
 }
+
 

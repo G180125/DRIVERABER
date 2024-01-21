@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -29,17 +30,21 @@ import android.widget.TextView;
 
 import com.example.driveraber.Activities.Main.Fragment.Profile.ProfileHelpFragment;
 import com.example.driveraber.Adapters.BookingResponseAdapter;
+import com.example.driveraber.Adapters.PolicyAdapter;
 import com.example.driveraber.FirebaseUtil;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Notification.InAppNotification;
 import com.example.driveraber.Models.Staff.Driver;
+import com.example.driveraber.Models.Staff.DriverPolicy;
 import com.example.driveraber.Models.User.User;
 import com.example.driveraber.R;
 import com.example.driveraber.Utils.AndroidUtil;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -55,8 +60,10 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
     private User user;
     private Driver driver;
     private String driverID;
-    private PopupWindow popupWindow;
+    private PopupWindow popupWindow, policyPopUp;
     private View root;
+    private DriverPolicy driverPolicy;
+    private PolicyAdapter documentPolicyAdapter, respectPolicyAdapter, lawPolicyAdapter, vehiclePolicyAdapter, practicePolicyAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,8 +77,40 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
             @Override
             public void onFetchSuccess(Driver object) {
                 driver = object;
-                if(!driver.isPermission()){
-                    initPopupWindow(driver.getStatus());
+                if(!driver.isAcceptPolicy()){
+                    firebaseManager.fetchDriverPolicy("u0SkgoA4j5YboEVkP4qXQWIXFrY2", new FirebaseUtil.OnFetchListener<DriverPolicy>() {
+                        @Override
+                        public void onFetchSuccess(DriverPolicy object) {
+                            driverPolicy = object;
+                            initPopupWindowPolicy();
+                        }
+
+                        @Override
+                        public void onFetchFailure(String message) {
+
+                        }
+                    });
+                }
+
+                if(isAvatarValid(driver.getAvatarUploadDate())){
+                    driver.setPermission(false);
+                    driver.setStatus("Avatar is out of date");
+
+                    firebaseManager.updateDriver(driver, new FirebaseUtil.OnTaskCompleteListener() {
+                        @Override
+                        public void onTaskSuccess(String message) {
+                            initPopupWindow(driver.getStatus());
+                        }
+
+                        @Override
+                        public void onTaskFailure(String message) {
+
+                        }
+                    });
+                } else {
+                    if (!driver.isPermission()) {
+                        initPopupWindow(driver.getStatus());
+                    }
                 }
             }
 
@@ -324,4 +363,115 @@ public class MainHomeFragment extends Fragment implements BookingResponseAdapter
 
         return formattedDateTime;
     }
+
+    public void initPopupWindowPolicy() {
+        AndroidUtil.showLoadingDialog(progressDialog);
+        LayoutInflater inflater = (LayoutInflater) requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.policy, null);
+
+        policyPopUp = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        policyPopUp.setTouchable(true);
+        // Set the background color with alpha transparency
+        popupView.setBackgroundColor(getResources().getColor(R.color.white, null));
+
+        CheckBox checkBox = popupView.findViewById(R.id.checkbox);
+        Button confirmButton = popupView.findViewById(R.id.confirm_button);
+
+        RecyclerView respectRecyclerView = popupView.findViewById(R.id.respectRecyclerView);
+        respectRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        respectPolicyAdapter = new PolicyAdapter(driverPolicy.getRespect());
+        respectRecyclerView.setAdapter(respectPolicyAdapter);
+
+        RecyclerView documentRecyclerView = popupView.findViewById(R.id.documentRecyclerView);
+        documentRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        documentPolicyAdapter = new PolicyAdapter(driverPolicy.getDocuments());
+        documentRecyclerView.setAdapter(documentPolicyAdapter);
+
+        RecyclerView lawRecyclerView = popupView.findViewById(R.id.lawRecyclerView);
+        lawRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        lawPolicyAdapter = new PolicyAdapter(driverPolicy.getLaw());
+        lawRecyclerView.setAdapter(lawPolicyAdapter);
+
+        RecyclerView vehicleRecyclerView = popupView.findViewById(R.id.vehicleRecyclerView);
+        vehicleRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        vehiclePolicyAdapter = new PolicyAdapter(driverPolicy.getVehicle());
+        vehicleRecyclerView.setAdapter(vehiclePolicyAdapter);
+
+        RecyclerView practiceRecyclerView = popupView.findViewById(R.id.practiceRecyclerView);
+        practiceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        practicePolicyAdapter = new PolicyAdapter(driverPolicy.getPractice());
+        practiceRecyclerView.setAdapter(practicePolicyAdapter);
+
+        AndroidUtil.hideLoadingDialog(progressDialog);
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!checkBox.isChecked()){
+                    showToast(requireContext(), "You haven't checked");
+                    return;
+                }
+
+                driver.setAcceptPolicy(true);
+
+                firebaseManager.updateDriver(driver, new FirebaseUtil.OnTaskCompleteListener() {
+                    @Override
+                    public void onTaskSuccess(String message) {
+                        policyPopUp.dismiss();
+                    }
+
+                    @Override
+                    public void onTaskFailure(String message) {
+                        showToast(requireContext(), message);
+                    }
+                });
+            }
+        });
+
+        policyPopUp.showAsDropDown(root, 0, 0);
+    }
+
+    private boolean isAvatarValid(String uploadDate) {
+        // Define the date format for parsing
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        try {
+            // Parse the upload date string to a Date object
+            Date date = dateFormat.parse(uploadDate);
+
+            // Get the current date
+            Date currentDate = new Date();
+
+            // Calculate the difference in months
+            int monthsDiff = calculateMonthsDifference(date, currentDate);
+
+            // Check if the difference is greater than or equal to 3 months
+            return monthsDiff >= 3;
+
+        } catch (ParseException e) {
+            e.printStackTrace(); // Handle the parsing exception
+        }
+
+        return true; // Return true if there was an error in parsing
+    }
+
+    private int calculateMonthsDifference(Date startDate, Date endDate) {
+        // Create Calendar instances for the start and end dates
+        Calendar startCalendar = Calendar.getInstance();
+        Calendar endCalendar = Calendar.getInstance();
+
+        // Set the Calendar instances to the specified dates
+        startCalendar.setTime(startDate);
+        endCalendar.setTime(endDate);
+
+        // Calculate the difference in years and months
+        int yearsDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+        int monthsDiff = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+
+        // Convert years to months and add to the total months difference
+        monthsDiff += yearsDiff * 12;
+
+        return monthsDiff;
+    }
+
 }

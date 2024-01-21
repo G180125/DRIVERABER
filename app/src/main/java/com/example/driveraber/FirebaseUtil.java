@@ -12,7 +12,9 @@ import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Booking.BookingResponse;
 import com.example.driveraber.Models.Message.MyMessage;
 import com.example.driveraber.Models.Notification.InAppNotification;
+import com.example.driveraber.Models.Staff.Admin;
 import com.example.driveraber.Models.Staff.Driver;
+import com.example.driveraber.Models.Staff.DriverPolicy;
 import com.example.driveraber.Models.User.SOS;
 import com.example.driveraber.Models.User.SOSActiveResponse;
 import com.example.driveraber.Models.User.User;
@@ -141,6 +143,28 @@ public class FirebaseUtil {
                 }
             }
         });
+    }
+
+    public void fetchDriverPolicy(String adminID, OnFetchListener<DriverPolicy> listener){
+        new Thread(() -> {
+            this.firestore.collection(this.COLLECTION_ADMINS)
+                    .document(adminID)  // Use document() instead of whereEqualTo
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Admin admin = document.toObject(Admin.class);
+                                assert admin != null;
+                                listener.onFetchSuccess(admin.getDriverPolicy());
+                            } else {
+                                listener.onFetchFailure("Admin Data not found");
+                            }
+                        } else {
+                            listener.onFetchFailure("Error: " + Objects.requireNonNull(task.getException()).getMessage());
+                        }
+                    });
+        }).start();
     }
 
     private void addDriver(String driverID, Driver driver, OnTaskCompleteListener listener){

@@ -1,11 +1,16 @@
 package com.example.driveraber;
 
+import static com.example.driveraber.Utils.AndroidUtil.replaceFragment;
+
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +28,8 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.example.driveraber.Activities.Main.Fragment.Booking.BookingListFragment;
+import com.example.driveraber.Activities.Main.Fragment.Profile.ProfileHelpFragment;
 import com.example.driveraber.Models.Booking.Booking;
 import com.example.driveraber.Models.Notification.InAppNotification;
 import com.example.driveraber.Models.Staff.Driver;
@@ -41,6 +49,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,6 +73,8 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
     private Button doneButton;
     private boolean isUpdateUI;
     private boolean expandState = false;
+    private View root;
+    private PopupWindow popupWindow;
 
     public interface FirebaseDataCallback {
         void onDataLoaded();
@@ -97,7 +108,7 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
                              Bundle savedInstanceState) {
         progressDialog = new ProgressDialog(requireContext());
         // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_driving, container, false);
+        root = inflater.inflate(R.layout.fragment_driving, container, false);
         firebaseManager = new FirebaseUtil();
         isUpdateUI = false;
 
@@ -170,8 +181,10 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
                 firebaseManager.finishDriving(notification, booking, new FirebaseUtil.OnTaskCompleteListener() {
                     @Override
                     public void onTaskSuccess(String message) {
-                        AndroidUtil.showToast(requireContext(), message);
+                        DecimalFormat decimalFormat = new DecimalFormat("#");
+                        String formattedPayment = decimalFormat.format(booking.getPayment().getAmount());
                         AndroidUtil.hideLoadingDialog(progressDialog);
+                        initPopupWindow("Finish Driving", "You have just received " + formattedPayment + " " + booking.getPayment().getCurrency() + ".");
                     }
 
                     @Override
@@ -386,4 +399,38 @@ public class DrivingFragment extends Fragment implements GoogleApiClient.OnConne
 
         return formattedDateTime;
     }
+
+    public void initPopupWindow(String title, String body) {
+        LayoutInflater inflater = (LayoutInflater) requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.pop_up_success_dialog, null);
+
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        popupWindow.setTouchable(true);
+        // Set the background color with alpha transparency
+        popupView.setBackgroundColor(getResources().getColor(R.color.popup_background, null));
+
+        TextView titleTextVIew = popupView.findViewById(R.id.title);
+        TextView bodyTextView = popupView.findViewById(R.id.body_text_view);
+        Button confirmButton = popupView.findViewById(R.id.confim_button);
+
+        titleTextVIew.setText(title);
+        bodyTextView.setText(body);
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+                FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                fragmentTransaction.replace(R.id.fragment_main_container, new BookingListFragment());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
+        popupWindow.showAsDropDown(root, 0, 0);
+
     }
+}
