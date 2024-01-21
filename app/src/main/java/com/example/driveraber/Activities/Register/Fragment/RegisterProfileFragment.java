@@ -208,28 +208,28 @@ public class RegisterProfileFragment extends Fragment {
 
     private boolean validateInputs(String name, String email, String phoneNumber, String gender, String licenseNumber){
         if(name.isEmpty()){
-            AndroidUtil.showToast(requireContext(), getString(R.string.name_error));
+//            AndroidUtil.showToast(requireContext(), getString(R.string.name_error));
             nameEditText.setError(getString(R.string.name_error));
             return false;
         }
         if (!isValidEmail(email)){
-            AndroidUtil.showToast(requireContext(), "Email is invalid.");
-            emailEditText.setError("Email is invalid");
+//            AndroidUtil.showToast(requireContext(), getString(R.string.email_error));
+            emailEditText.setError(getString(R.string.email_error));
             return false;
         }
         if(!validatePhoneNumber(phoneNumber)) {
-            AndroidUtil.showToast(requireContext(), "Phone is invalid.");
-            phoneEditText.setError("Phone is invalid");
+//            AndroidUtil.showToast(requireContext(), getString(R.string.phone_is_invalid));
+            phoneEditText.setError(getString(R.string.phone_is_invalid));
             return false;
         }
         if (gender == null) {
-            setErrorEditText.setError("Gender cannot be empty");
-            AndroidUtil.showToast(requireContext(), "Gender can not be empty");
+            setErrorEditText.setError(getString(R.string.gender_cannot_be_empty));
+//            AndroidUtil.showToast(requireContext(), getString(R.string.gender_cannot_be_empty));
             return false;
         }
         if(!validateLicenseNumber(licenseNumber)) {
-            licenseNumberEditText.setError("License is invalid");
-            AndroidUtil.showToast(requireContext(), "License is invalid.");
+            licenseNumberEditText.setError(getString(R.string.license_is_invalid));
+//            AndroidUtil.showToast(requireContext(), getString(R.string.license_is_invalid));
             return false;
         }
 

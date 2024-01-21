@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="New Booking"
+            android:text="@string/new_booking"
             android:textSize="32sp"
             android:layout_marginVertical="20dp"
             android:gravity="center_horizontal"

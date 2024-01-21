@@ -134,6 +134,7 @@ public class LoginActivity extends AppCompatActivity {
                     firebaseManager.login(email, password, new FirebaseUtil.OnTaskCompleteListener() {
                         @Override
                         public void onTaskSuccess(String message) {
+                            message = getString(R.string.login_successfully);
                             AndroidUtil.hideLoadingDialog(progressDialog);
                             AndroidUtil.showToast(LoginActivity.this, message);
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));

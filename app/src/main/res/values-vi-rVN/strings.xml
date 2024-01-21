@@ -86,7 +86,14 @@
     <string name="english">English</string>
     <string name="Vietnamese">Tiếng Việt</string>
     <string name="upload_avatar">Đăng Ảnh</string>
-    <string name="name_error">Teeeeeee.</string>
+    <string name="name_error">Tên không hợp lệ.</string>
+    <string name="email_error">Email không hợp lệ.</string>
+    <string name="phone_is_invalid">Số điện thoại không hợp lệ.</string>
+    <string name="gender_cannot_be_empty">Giới tính không được để trống</string>
+    <string name="license_is_invalid">Bằng lái xe không hợp lệ</string>
+    <string name="password_is_empty">Password is empty</string>
+    <string name="login_successfully">Đăng nhập thành công</string>
+    <string name="new_booking">Booking Mới</string>
 
 
 </resources>

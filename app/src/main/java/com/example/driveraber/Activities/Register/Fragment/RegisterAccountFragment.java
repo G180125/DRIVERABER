@@ -76,11 +76,12 @@ public class RegisterAccountFragment extends Fragment {
                 AndroidUtil.showLoadingDialog(progressDialog);
                 String password = passwordEditText.getText().toString();
                 String confirmPassword = confirmPasswordEditText.getText().toString();
-                if(!password.equals(confirmPassword)){
-                    passwordEditText.setError("Password are not matched");
-                    confirmPasswordEditText.setError("Password are not matched");
-                    AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
-                } else {
+//                if(!password.equals(confirmPassword)){
+//                    passwordEditText.setError("Password are not matched");
+//                    confirmPasswordEditText.setError("Password are not matched");
+//                    AndroidUtil.showToast(requireContext(), "Passwords are not matched.");
+//                } else {
+                if (validateInputs(password,confirmPassword)){
                     //toRegisterOTPFragment(name, email, phoneNumber, gender, licenseNumber, avatar, password);
                     Gender userGender = Gender.valueOf(gender);
                     String currentDate = getCurrentDate();
@@ -114,6 +115,28 @@ public class RegisterAccountFragment extends Fragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         return dateFormat.format(currentDate);
+    }
+
+    private boolean validateInputs(String password,String confirmPassword){
+        if (password.isEmpty() && confirmPassword.isEmpty()){
+            passwordEditText.setError(getString(R.string.password_is_empty));
+            confirmPasswordEditText.setError(getString(R.string.password_is_empty));
+            AndroidUtil.hideLoadingDialog(progressDialog);
+            return false;
+        }
+        if (password.isEmpty()){
+            passwordEditText.setError(getString(R.string.password_is_empty));
+            AndroidUtil.hideLoadingDialog(progressDialog);
+            return false;
+        }
+
+        if (confirmPassword.isEmpty()){
+            confirmPasswordEditText.setError(getString(R.string.password_is_empty));
+            AndroidUtil.hideLoadingDialog(progressDialog);
+            return false;
+        }
+
+        return true;
     }
 
 //    private void toRegisterOTPFragment(String name, String email, String phoneNumber, String gender, String licenseNumber, String avatar, String password){

@@ -84,6 +84,13 @@
     <string name="account_heading">Please enter your password to create your account.</string>
     <string name="please_upload_an_image">Please upload an image.</string>
     <string name="name_error">Name can not be empty.</string>
+    <string name="email_error">Email is invalid.</string>
+    <string name="phone_is_invalid">Phone is invalid.</string>
+    <string name="gender_cannot_be_empty">Gender cannot be empty</string>
+    <string name="license_is_invalid">License is invalid</string>
+    <string name="password_is_empty">Password is empty</string>
+    <string name="login_successfully">Login Successfully</string>
+    <string name="new_booking">New Booking</string>
 
 
 </resources>
