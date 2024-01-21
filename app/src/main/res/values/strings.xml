@@ -83,6 +83,7 @@
     <string name="upload_avatar">Upload Avatar</string>
     <string name="account_heading">Please enter your password to create your account.</string>
     <string name="please_upload_an_image">Please upload an image.</string>
+    <string name="name_error">Name can not be empty.</string>
 
 
 </resources>

@@ -208,8 +208,8 @@ public class RegisterProfileFragment extends Fragment {
 
     private boolean validateInputs(String name, String email, String phoneNumber, String gender, String licenseNumber){
         if(name.isEmpty()){
-            AndroidUtil.showToast(requireContext(), "Name can not be empty.");
-            nameEditText.setError("Name cannot be empty");
+            AndroidUtil.showToast(requireContext(), getString(R.string.name_error));
+            nameEditText.setError(getString(R.string.name_error));
             return false;
         }
         if (!isValidEmail(email)){
