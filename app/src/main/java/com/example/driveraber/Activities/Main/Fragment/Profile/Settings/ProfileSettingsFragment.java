@@ -47,7 +47,7 @@ public class ProfileSettingsFragment extends Fragment {
         settingsListView = root.findViewById(R.id.settings_list_view);
         allSettings = new ArrayList<>();
         allSettings.add(new SettingItem("Language", R.drawable.ic_language24));
-        allSettings.add(new SettingItem("Dark Mode", R.drawable.ic_dark_mode24));
+//        allSettings.add(new SettingItem("Dark Mode", R.drawable.ic_dark_mode24));
 
         filteredSettings = new ArrayList<>(allSettings);
 
@@ -110,9 +110,9 @@ public class ProfileSettingsFragment extends Fragment {
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             replaceFragment(new LanguageSettingsFragment(), fragmentManager, fragmentTransaction, R.id.fragment_main_container);
-        } else if (setting.getText().equals("Dark Mode")) {
-            // Handle dark mode setting click
-            Toast.makeText(requireContext(), "Dark mode clicked", Toast.LENGTH_SHORT).show();
-        }
+//        } else if (setting.getText().equals("Dark Mode")) {
+//            // Handle dark mode setting click
+//            Toast.makeText(requireContext(), "Dark mode clicked", Toast.LENGTH_SHORT).show();
+       }
     }
 }

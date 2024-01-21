@@ -88,7 +88,7 @@ public class MainProfileFragment extends Fragment {
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 replaceFragment(new ProfileSettingsFragment(),fragmentManager,fragmentTransaction,R.id.fragment_main_container);
-                AndroidUtil.showToast(requireContext(),"history card is clicked");
+                AndroidUtil.showToast(requireContext(),"settings card is clicked");
 
             }
         });
